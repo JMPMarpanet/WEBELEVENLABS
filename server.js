@@ -23,6 +23,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
+  console.log("BODY:", req.body);
+
   const { data: user, error } = await supabase
     .from("users")
     .select("*")
