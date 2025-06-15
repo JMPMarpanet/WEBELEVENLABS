@@ -16,9 +16,6 @@ const port = process.env.PORT || 3000;
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-console.log("Supabase URL:", process.env.SUPABASE_URL);
-console.log("Supabase Key:", process.env.SUPABASE_KEY ? "OK" : "FALTANTE");
-
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
@@ -27,6 +24,9 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   console.log("BODY:", req.body);
+
+  console.log("Supabase URL:", process.env.SUPABASE_URL);
+  console.log("Supabase Key:", process.env.SUPABASE_KEY ? "OK" : "FALTANTE");
 
   const { data: user, error } = await supabase
     .from("users")
