@@ -29,10 +29,20 @@ app.post("/login", async (req, res) => {
     .eq("username", username)
     .single();
 
-  if (error || !user) return res.status(401).json({ error: "Credenciales incorrectas" });
+  console.log("Intento de login:", username);
+  console.log("Usuario encontrado:", user);
+  console.log("Error de Supabase:", error);
+
+  if (error || !user) {
+    return res.status(401).json({ error: "Credenciales incorrectas" });
+  }
 
   const validPassword = await bcrypt.compare(password, user.password);
-  if (!validPassword) return res.status(401).json({ error: "Credenciales incorrectas" });
+  console.log("ÀContrase–a v‡lida?", validPassword);
+
+  if (!validPassword) {
+    return res.status(401).json({ error: "Credenciales incorrectas" });
+  }
 
   res.json({ success: true, is_admin: user.is_admin });
 });
