@@ -43,9 +43,11 @@ app.post("/login", async (req, res) => {
     return res.status(401).json({ error: "Credenciales incorrectas" });
   }
 
-  console.log("Prueba","Antes de comparar contrasena");
   const validPassword = await bcrypt.compare(String(password), user.password);
   console.log("Contrasena valida?", validPassword);
+  console.log("password", password);
+  console.log("passwordUsuario", user.password);
+  
 
   if (!validPassword) {
     return res.status(401).json({ error: "Credenciales incorrectas" });
