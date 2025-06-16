@@ -48,12 +48,11 @@
 </head>
 <body>
   <h2>Agente de IA</h2>
-  <img src="https://webelevenlabs.onrender.com/agente.png" alt="Agente IA" />
+  <img src="agente.png" alt="Agente IA" />
 
   <div id="status">Conectando con el agente...</div>
 
   <div id="controls">
-    <button id="cancelBtn" class="cancel" disabled>Cancelar conversación</button>
     <button id="restartBtn">Iniciar nueva conversación</button>
   </div>
 
@@ -81,7 +80,9 @@
         const { signed_url } = await res.json();
 
         conversation = await Conversation.startSession({ signedUrl: signed_url });
-        status.innerText = "Conectado. Esperando mensaje del agente...";
+        status.innerText = "Conectado.";
+
+        return conversation;
 
       } catch (err) {
         console.error("Error:", err);
@@ -90,16 +91,8 @@
       }
     }
 
-    cancelBtn.addEventListener("click", () => {
-      if (conversation) {
-        conversation.end();
-        status.innerText = "Conversación finalizada.";
-        cancelBtn.disabled = true;
-      }
-    });
-
     restartBtn.addEventListener("click", () => {
-      startConversation();
+      location.reload();
     });
 
     // Iniciar automáticamente al cargar
