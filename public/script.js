@@ -15,7 +15,9 @@ document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
   if (res.ok) {
     localStorage.setItem("isAdmin", data.is_admin);
     localStorage.setItem("loggedIn", true);
-    window.location.href = data.is_admin ? "/admin" : "/dashboard";
+
+    // 🔄 Ir siempre al dashboard
+    window.location.href = "/dashboard";
   } else {
     document.getElementById("error").innerText = data.error || "Error de login";
   }
