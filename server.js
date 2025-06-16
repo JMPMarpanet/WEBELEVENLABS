@@ -48,6 +48,10 @@ app.post("/login", async (req, res) => {
   console.log("password", String(password));
   console.log("passwordUsuario", user.password);
   
+  const password2 = "1234";
+  bcrypt.hash(password2, 10).then(hash => console.log("Nuevo hash:", hash));
+
+
 
   if (!validPassword) {
     return res.status(401).json({ error: "Credenciales incorrectas" });
