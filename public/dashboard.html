@@ -3,8 +3,68 @@
 <head>
   <meta charset="UTF-8" />
   <title>Agente IA</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f0f4f8;
+      text-align: center;
+      padding: 40px;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    #status {
+      margin: 20px 0;
+      font-size: 1.2em;
+      color: #666;
+    }
+
+    #controls {
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 1em;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #0066ff;
+      color: white;
+    }
+
+    button.cancel {
+      background-color: #d11a2a;
+    }
+
+    img {
+      width: 150px;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <h2>Agente de IA</h2>
+  <img src="https://cdn-icons-png.flaticon.com/512/4712/4712103.png" alt="Agente IA" />
+
+  <div id="status">Conectando con el agente...</div>
+
+  <div id="controls">
+    <button id="cancelBtn" class="cancel" disabled>Cancelar conversación</button>
+    <button id="restartBtn">Iniciar nueva conversación</button>
+  </div>
+
   <script type="module">
     import { Conversation } from "https://esm.sh/@elevenlabs/client";
+
+    const status = document.getElementById("status");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    let conversation;
 
     const isLogged = localStorage.getItem("loggedIn") === "true";
     if (!isLogged) {
@@ -12,29 +72,43 @@
       window.location.href = "/";
     }
 
-    async function start() {
+    async function startConversation() {
       try {
+        status.innerText = "Conectando con el agente...";
+        cancelBtn.disabled = false;
+
         const res = await fetch("/signed-url");
-        if (!res.ok) throw new Error("No se pudo obtener el signed URL.");
         const { signed_url } = await res.json();
 
-        const conversation = await Conversation.startSession({ signedUrl: signed_url });
+        conversation = await Conversation.startSession({ signedUrl: signed_url });
+        status.innerText = "Conectado. Esperando mensaje del agente...";
 
-        // Aquí puedes interactuar con la sesión (por ejemplo enviar texto)
-        console.log("Sesión iniciada:", conversation);
-
-        return conversation;
+        conversation.on("message", (msg) => {
+          status.innerText = `Respuesta del agente: ${msg.text || "[audio]"}`;
+        });
 
       } catch (err) {
-        console.error("Error al iniciar conversación:", err);
+        console.error("Error:", err);
+        status.innerText = "Error al conectar con el agente.";
+        cancelBtn.disabled = true;
       }
     }
 
-    start();
+    cancelBtn.addEventListener("click", () => {
+      if (conversation) {
+        conversation.end();
+        status.innerText = "Conversación finalizada.";
+        cancelBtn.disabled = true;
+      }
+    });
+
+    restartBtn.addEventListener("click", () => {
+      startConversation();
+    });
+
+    // Iniciar automáticamente al cargar
+    startConversation();
   </script>
-</head>
-<body>
-  <h2>Conectando con el agente de IA...</h2>
-  <p>Abriendo sesión segura vía Eleven Labs</p>
 </body>
 </html>
+
