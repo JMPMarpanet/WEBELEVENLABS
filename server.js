@@ -23,10 +23,10 @@ app.use(express.static(path.join(__dirname, "public")));
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  console.log("BODY:", req.body);
+  //console.log("BODY:", req.body);
 
-  console.log("Supabase URL:", process.env.SUPABASE_URL);
-  console.log("Supabase Key:", process.env.SUPABASE_KEY ? "OK" : "FALTANTE");
+  //console.log("Supabase URL:", process.env.SUPABASE_URL);
+  //console.log("Supabase Key:", process.env.SUPABASE_KEY ? "OK" : "FALTANTE");
 
   const { data: user, error } = await supabase
     .from("users")
@@ -34,17 +34,18 @@ app.post("/login", async (req, res) => {
     .eq("username", username)
     .single();
 
-  console.log("Intento de login:", username);
-  console.log("Usuario encontrado:", user);
-  console.log("Error de Supabase:", error);
-  console.log("Password", password)
+  //console.log("Intento de login:", username);
+  //console.log("Usuario encontrado:", user);
+  //console.log("Error de Supabase:", error);
+  //console.log("Password", password)
 
   if (error || !user) {
     return res.status(401).json({ error: "Credenciales incorrectas" });
   }
 
+  console.log("Prueba","Antes de comparar contrasena");
   const validPassword = await bcrypt.compare(string(password), user.password);
-  console.log("�Contrase�a v�lida?", validPassword);
+  console.log("Contrasena valida?", validPassword);
 
   if (!validPassword) {
     return res.status(401).json({ error: "Credenciales incorrectas" });
