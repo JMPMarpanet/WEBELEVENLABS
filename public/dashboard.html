@@ -2,39 +2,18 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Agente IA - Dashboard</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f0f2f5;
-    }
-    h2 {
-      color: #333;
-    }
-    iframe {
-      width: 100%;
-      height: 600px;
-      border: none;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-  </style>
-</head>
-<body>
-  <h2>Bienvenido al agente de IA</h2>
-
-  <!-- Sustituye esta URL con la de tu agente Eleven Labs -->
-  <iframe src="https://elevenlabs.io/app/talk-to?agent_id=agent_01jxqb4at7eqwa0nc1g9296rsm" title="Agente IA"></iframe>
-
+  <title>Redirigiendo al agente IA...</title>
   <script>
     const isLogged = localStorage.getItem("loggedIn") === "true";
-
     if (!isLogged) {
       alert("Debes iniciar sesión para acceder al dashboard.");
       window.location.href = "/";
+    } else {
+      window.location.href = "https://elevenlabs.io/app/talk-to?agent_id=agent_01jxqb4at7eqwa0nc1g9296rsm";
     }
   </script>
+</head>
+<body>
+  <p>Redirigiendo al agente IA...</p>
 </body>
 </html>
