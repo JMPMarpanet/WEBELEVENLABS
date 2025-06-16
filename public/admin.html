@@ -12,7 +12,7 @@
       margin: auto;
     }
 
-    h2 {
+    h2, h3 {
       color: #333;
       text-align: center;
     }
@@ -89,20 +89,28 @@
       tableBody.innerHTML = "";
       users.forEach(u => {
         const tr = document.createElement("tr");
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Eliminar";
+        deleteBtn.className = "danger";
+        deleteBtn.addEventListener("click", async () => {
+          if (confirm(`¿Eliminar al usuario ${u.username}?`)) {
+            await fetch(`/api/users/${u.id}`, { method: "DELETE" });
+            cargarUsuarios();
+          }
+        });
+
         tr.innerHTML = `
           <td>${u.username}</td>
           <td>${u.is_admin ? "✅" : "❌"}</td>
-          <td><button class="danger" onclick="eliminarUsuario('${u.id}')">Eliminar</button></td>
         `;
+
+        const td = document.createElement("td");
+        td.appendChild(deleteBtn);
+        tr.appendChild(td);
+
         tableBody.appendChild(tr);
       });
-    }
-
-    async function eliminarUsuario(id) {
-      if (confirm("¿Estás seguro de eliminar este usuario?")) {
-        await fetch(`/api/users/${id}`, { method: "DELETE" });
-        cargarUsuarios();
-      }
     }
 
     form.addEventListener("submit", async (e) => {
