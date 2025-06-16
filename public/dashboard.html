@@ -48,7 +48,7 @@
 </head>
 <body>
   <h2>Agente de IA</h2>
-  <img src="https://cdn-icons-png.flaticon.com/512/4712/4712103.png" alt="Agente IA" />
+  <img src="https://webelevenlabs.onrender.com/agente.png" alt="Agente IA" />
 
   <div id="status">Conectando con el agente...</div>
 
@@ -82,10 +82,6 @@
 
         conversation = await Conversation.startSession({ signedUrl: signed_url });
         status.innerText = "Conectado. Esperando mensaje del agente...";
-
-        conversation.on("message", (msg) => {
-          status.innerText = `Respuesta del agente: ${msg.text || "[audio]"}`;
-        });
 
       } catch (err) {
         console.error("Error:", err);
