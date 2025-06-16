@@ -23,35 +23,20 @@ app.use(express.static(path.join(__dirname, "public")));
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  //console.log("BODY:", req.body);
-
-  //console.log("Supabase URL:", process.env.SUPABASE_URL);
-  //console.log("Supabase Key:", process.env.SUPABASE_KEY ? "OK" : "FALTANTE");
-
   const { data: user, error } = await supabase
     .from("users")
     .select("*")
     .eq("username", username)
     .single();
 
-  //console.log("Intento de login:", username);
-  //console.log("Usuario encontrado:", user);
-  //console.log("Error de Supabase:", error);
-  //console.log("Password", password)
-
   if (error || !user) {
     return res.status(401).json({ error: "Credenciales incorrectas" });
   }
 
   const validPassword = await bcrypt.compare(String(password), user.password);
-  console.log("Contrasena valida?", validPassword);
-  console.log("password", String(password));
-  console.log("passwordUsuario", user.password);
   
-  const password2 = "1234";
-  bcrypt.hash(password2, 10).then(hash => console.log("Nuevo hash:", hash));
-
-
+  //const password2 = "1234";
+  //bcrypt.hash(password2, 10).then(hash => console.log("Nuevo hash:", hash));
 
   if (!validPassword) {
     return res.status(401).json({ error: "Credenciales incorrectas" });
