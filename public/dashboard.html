@@ -36,10 +36,6 @@
       color: white;
     }
 
-    button.cancel {
-      background-color: #d11a2a;
-    }
-
     img {
       width: 150px;
       margin: 20px auto;
@@ -48,7 +44,7 @@
 </head>
 <body>
   <h2>Agente de IA</h2>
-  <img src="agente.png" alt="Agente IA" />
+  <img src="Agente.png" alt="Agente IA" />
 
   <div id="status">Conectando con el agente...</div>
 
@@ -60,7 +56,6 @@
     import { Conversation } from "https://esm.sh/@elevenlabs/client";
 
     const status = document.getElementById("status");
-    const cancelBtn = document.getElementById("cancelBtn");
     const restartBtn = document.getElementById("restartBtn");
 
     let conversation;
@@ -74,25 +69,21 @@
     async function startConversation() {
       try {
         status.innerText = "Conectando con el agente...";
-        cancelBtn.disabled = false;
 
         const res = await fetch("/signed-url");
         const { signed_url } = await res.json();
 
         conversation = await Conversation.startSession({ signedUrl: signed_url });
-        status.innerText = "Conectado.";
-
-        return conversation;
+        status.innerText = "Conectado. Puedes hablar con el agente.";
 
       } catch (err) {
         console.error("Error:", err);
         status.innerText = "Error al conectar con el agente.";
-        cancelBtn.disabled = true;
       }
     }
 
     restartBtn.addEventListener("click", () => {
-      location.reload();
+      location.reload(); // Refresca la página completamente
     });
 
     // Iniciar automáticamente al cargar
@@ -100,4 +91,3 @@
   </script>
 </body>
 </html>
-
