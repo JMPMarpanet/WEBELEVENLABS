@@ -2,18 +2,47 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Redirigiendo al agente IA...</title>
-  <script>
-    const isLogged = localStorage.getItem("loggedIn") === "true";
-    if (!isLogged) {
-      alert("Debes iniciar sesión para acceder al dashboard.");
-      window.location.href = "/";
-    } else {
-      window.location.href = "https://elevenlabs.io/app/talk-to?agent_id=agent_01jxqb4at7eqwa0nc1g9296rsm";
+  <title>Agente IA - Dashboard</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f8f8f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 50px;
     }
-  </script>
+
+    #loading {
+      font-size: 1.5rem;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-  <p>Redirigiendo al agente IA...</p>
+  <h2>Conectando con el agente de IA...</h2>
+  <p id="loading">Por favor espera un momento.</p>
+
+  <script>
+    (async () => {
+      const isLogged = localStorage.getItem("loggedIn") === "true";
+      if (!isLogged) {
+        alert("Debes iniciar sesión para acceder.");
+        return window.location.href = "/";
+      }
+
+      try {
+        const res = await fetch("/signed-url");
+        if (!res.ok) throw new Error("No se pudo obtener el signed URL.");
+        const { signed_url } = await res.json();
+
+        // Redirige al agente (puede abrirse en la misma pestaña o en nueva si prefieres)
+        window.location.href = signed_url;
+      } catch (err) {
+        console.error("Error:", err);
+        document.getElementById("loading").innerText = "Ocurrió un error al conectar con el agente.";
+      }
+    })();
+  </script>
 </body>
 </html>

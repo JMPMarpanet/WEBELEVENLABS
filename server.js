@@ -45,6 +45,23 @@ app.post("/login", async (req, res) => {
   res.json({ success: true, is_admin: user.is_admin });
 });
 
+app.get("/signed-url", async (req, res) => {
+  try {
+    const agentId = process.env.AGENT_ID;
+    const resp = await fetch(
+      `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${agentId}`,
+      { headers: { "xi-api-key": process.env.ELEVENLABS_KEY } }
+    );
+    if (!resp.ok) throw new Error(await resp.text());
+    const body = await resp.json();
+    res.json({ signed_url: body.signed_url });
+  } catch (err) {
+    console.error("Error getting signed URL", err);
+    res.status(500).json({ error: "No se pudo generar signed_url" });
+  }
+});
+
+
 app.get("/dashboard", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "dashboard.html"));
 });
