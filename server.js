@@ -44,7 +44,7 @@ app.post("/login", async (req, res) => {
   }
 
   console.log("Prueba","Antes de comparar contrasena");
-  const validPassword = await bcrypt.compare(string(password), user.password);
+  const validPassword = await bcrypt.compare(String(password), user.password);
   console.log("Contrasena valida?", validPassword);
 
   if (!validPassword) {
