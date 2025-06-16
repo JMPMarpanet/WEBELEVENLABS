@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cerrar sesión</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f4f4f4;
+      text-align: center;
+      padding: 60px;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    p {
+      font-size: 1.2em;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h2>Sesión cerrada</h2>
+  <p>Redirigiendo al inicio de sesión...</p>
+
+  <script>
+    // Elimina las variables de sesión
+    localStorage.removeItem("loggedIn");
+    localStorage.removeItem("isAdmin");
+
+    // Redirige a la página de login después de 2 segundos
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 2000);
+  </script>
+</body>
+</html>

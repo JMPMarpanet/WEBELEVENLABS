@@ -61,13 +61,40 @@ app.get("/signed-url", async (req, res) => {
   }
 });
 
-
 app.get("/dashboard", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "dashboard.html"));
 });
 
 app.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin.html"));
+});
+
+// API: Obtener todos los usuarios (sin contraseña)
+app.get("/api/users", async (req, res) => {
+  const { data, error } = await supabase.from("users").select("id, username, is_admin");
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// API: Crear nuevo usuario
+app.post("/api/users", async (req, res) => {
+  const { username, password, is_admin } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const { error } = await supabase.from("users").insert([
+    { username, password: hashedPassword, is_admin }
+  ]);
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.status(201).json({ message: "Usuario creado" });
+});
+
+// API: Eliminar usuario por ID
+app.delete("/api/users/:id", async (req, res) => {
+  const { id } = req.params;
+  const { error } = await supabase.from("users").delete().eq("id", id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ message: "Usuario eliminado" });
 });
 
 app.listen(port, () => console.log(`Servidor corriendo en http://localhost:${port}`));
