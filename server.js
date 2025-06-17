@@ -99,7 +99,7 @@ app.delete("/api/users/:id", async (req, res) => {
 
 // API: Registrar inicio de conversación
 app.post("/api/log-conversation", async (req, res) => {
-  const { username, user_agent } = req.body;
+  const { username, user_agent, timezone } = req.body;
   const { error } = await supabase.from("conversation_logs").insert([
     { username, user_agent }
   ]);

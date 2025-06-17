@@ -139,7 +139,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: localStorage.getItem("username") || "desconocido",
-          user_agent: navigator.userAgent
+          user_agent: navigator.userAgent,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         })
         });
         
