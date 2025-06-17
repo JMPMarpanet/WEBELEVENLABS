@@ -41,11 +41,56 @@
       margin: 20px auto;
       cursor: pointer;
     }
+
+    .voice-bars {
+      display: none;
+      margin: 30px auto;
+      width: 100px;
+      height: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+    }
+
+    .voice-bars span {
+      width: 10px;
+      height: 10px;
+      background: #0066ff;
+      border-radius: 4px;
+      animation: bounce 1s infinite ease-in-out;
+    }
+
+    .voice-bars span:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+    .voice-bars span:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+    .voice-bars span:nth-child(4) {
+      animation-delay: 0.3s;
+    }
+    .voice-bars span:nth-child(5) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        height: 10px;
+      }
+      50% {
+        height: 35px;
+      }
+    }
+
   </style>
 </head>
 <body>
   <h2>Agente de IA</h2>
   <img src="Agente.png" alt="Agente IA" id="agentImg" />
+
+  <div id="voice-animation" class="voice-bars">
+  <span></span><span></span><span></span><span></span><span></span>
+  </div>
 
   <div id="status">Haz clic en el agente para iniciar la conversación.</div>
 
@@ -97,6 +142,8 @@
           user_agent: navigator.userAgent
         })
         });
+        
+        document.getElementById("voice-animation").style.display = "flex";
 
         // Escuchar mensajes del agente
         conversation.onMessage((message) => {
