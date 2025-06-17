@@ -81,7 +81,6 @@
         height: 35px;
       }
     }
-
   </style>
 </head>
 <body>
@@ -89,7 +88,7 @@
   <img src="Agente.png" alt="Agente IA" id="agentImg" />
 
   <div id="voice-animation" class="voice-bars">
-  <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
   </div>
 
   <div id="status">Haz clic en el agente para iniciar la conversación.</div>
@@ -101,6 +100,14 @@
     <button id="logoutBtn">Cerrar sesión</button>
   </div>
 
+  <div id="changePasswordForm" style="display:none; margin-top: 30px;">
+    <h3>Cambiar contraseña</h3>
+    <input type="password" id="currentPwd" placeholder="Contraseña actual" /><br />
+    <input type="password" id="newPwd" placeholder="Nueva contraseña" /><br />
+    <button id="confirmPwdBtn">Confirmar cambio</button>
+    <p id="pwdMsg"></p>
+  </div>
+
   <script type="module">
     import { Conversation } from "https://esm.sh/@elevenlabs/client";
 
@@ -110,6 +117,8 @@
     const adminBtn = document.getElementById("adminBtn");
     const changePwdBtn = document.getElementById("changePwdBtn");
     const logoutBtn = document.getElementById("logoutBtn");
+    const changeForm = document.getElementById("changePasswordForm");
+    const confirmPwdBtn = document.getElementById("confirmPwdBtn");
 
     let conversation;
     const isLogged = localStorage.getItem("loggedIn") === "true";
@@ -135,24 +144,22 @@
 
         // Registrar conversación en Supabase
         await fetch("/api/log-conversation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: localStorage.getItem("username") || "desconocido",
-          user_agent: navigator.userAgent,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-        })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: localStorage.getItem("username") || "desconocido",
+            user_agent: navigator.userAgent,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+          })
         });
-        
+
         document.getElementById("voice-animation").style.display = "flex";
 
-        // Escuchar mensajes del agente
         conversation.onMessage((message) => {
           console.log("Mensaje del agente:", message);
           status.innerText = "Agente: " + message.text;
         });
 
-        // Manejar errores de la conversación
         conversation.onError((error) => {
           console.error("Error en la conversación:", error);
           status.innerText = "Error en la conversación.";
@@ -177,7 +184,24 @@
     });
 
     changePwdBtn.addEventListener("click", () => {
-      alert("Funcionalidad de cambio de contraseña aún no implementada.");
+      changeForm.style.display = changeForm.style.display === "none" ? "block" : "none";
+    });
+
+    confirmPwdBtn.addEventListener("click", async () => {
+      const username = localStorage.getItem("username");
+      const currentPassword = document.getElementById("currentPwd").value;
+      const newPassword = document.getElementById("newPwd").value;
+      const msg = document.getElementById("pwdMsg");
+
+      const res = await fetch("/api/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, currentPassword, newPassword }),
+      });
+
+      const data = await res.json();
+      msg.style.color = res.ok ? "green" : "red";
+      msg.innerText = data.message || data.error;
     });
 
     logoutBtn.addEventListener("click", () => {
@@ -185,7 +209,6 @@
     });
 
     document.getElementById("voice-animation").style.display = "none";
-
   </script>
 </body>
 </html>

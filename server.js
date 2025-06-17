@@ -107,5 +107,37 @@ app.post("/api/log-conversation", async (req, res) => {
   res.status(201).json({ message: "Conversación registrada" });
 });
 
+app.post("/api/change-password", async (req, res) => {
+  const { username, currentPassword, newPassword } = req.body;
+
+  const { data: user, error: userError } = await supabase
+    .from("users")
+    .select("*")
+    .eq("username", username)
+    .single();
+
+  if (userError || !user) {
+    return res.status(404).json({ error: "Usuario no encontrado" });
+  }
+
+  const valid = await bcrypt.compare(String(currentPassword), user.password);
+  if (!valid) {
+    return res.status(401).json({ error: "Contraseña actual incorrecta" });
+  }
+
+  const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+  const { error: updateError } = await supabase
+    .from("users")
+    .update({ password: hashedNewPassword })
+    .eq("username", username);
+
+  if (updateError) {
+    return res.status(500).json({ error: updateError.message });
+  }
+
+  res.json({ message: "Contraseña actualizada correctamente" });
+});
+
 
 app.listen(port, () => console.log(`Servidor corriendo en http://localhost:${port}`));
