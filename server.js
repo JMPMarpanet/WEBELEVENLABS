@@ -97,4 +97,15 @@ app.delete("/api/users/:id", async (req, res) => {
   res.json({ message: "Usuario eliminado" });
 });
 
+// API: Registrar inicio de conversación
+app.post("/api/log-conversation", async (req, res) => {
+  const { username, user_agent } = req.body;
+  const { error } = await supabase.from("conversation_logs").insert([
+    { username, user_agent }
+  ]);
+  if (error) return res.status(500).json({ error: error.message });
+  res.status(201).json({ message: "Conversación registrada" });
+});
+
+
 app.listen(port, () => console.log(`Servidor corriendo en http://localhost:${port}`));

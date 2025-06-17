@@ -39,42 +39,76 @@
     img {
       width: 150px;
       margin: 20px auto;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <h2>Agente de IA</h2>
-  <img src="Agente.png" alt="Agente IA" />
+  <img src="Agente.png" alt="Agente IA" id="agentImg" />
 
-  <div id="status">Conectando con el agente...</div>
+  <div id="status">Haz clic en el agente para iniciar la conversación.</div>
 
   <div id="controls">
-    <button id="restartBtn">Iniciar nueva conversación</button>
+    <button id="stopBtn">Parar conversación</button><br />
+    <button id="adminBtn" style="display:none;">Administrar usuarios</button>
+    <button id="changePwdBtn">Cambiar contraseña</button>
+    <button id="logoutBtn">Cerrar sesión</button>
   </div>
 
   <script type="module">
     import { Conversation } from "https://esm.sh/@elevenlabs/client";
 
     const status = document.getElementById("status");
-    const restartBtn = document.getElementById("restartBtn");
+    const agentImg = document.getElementById("agentImg");
+    const stopBtn = document.getElementById("stopBtn");
+    const adminBtn = document.getElementById("adminBtn");
+    const changePwdBtn = document.getElementById("changePwdBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
 
     let conversation;
-
     const isLogged = localStorage.getItem("loggedIn") === "true";
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+
     if (!isLogged) {
       alert("Debes iniciar sesión.");
       window.location.href = "/";
     }
 
+    if (isAdmin) {
+      adminBtn.style.display = "inline-block";
+    }
+
     async function startConversation() {
       try {
         status.innerText = "Conectando con el agente...";
-
         const res = await fetch("/signed-url");
         const { signed_url } = await res.json();
 
         conversation = await Conversation.startSession({ signedUrl: signed_url });
         status.innerText = "Conectado. Puedes hablar con el agente.";
+
+        // Registrar conversación en Supabase
+        await fetch("/api/log-conversation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: localStorage.getItem("username") || "desconocido",
+          user_agent: navigator.userAgent
+        })
+        });
+
+        // Escuchar mensajes del agente
+        conversation.onMessage((message) => {
+          console.log("Mensaje del agente:", message);
+          status.innerText = "Agente: " + message.text;
+        });
+
+        // Manejar errores de la conversación
+        conversation.onError((error) => {
+          console.error("Error en la conversación:", error);
+          status.innerText = "Error en la conversación.";
+        });
 
       } catch (err) {
         console.error("Error:", err);
@@ -82,12 +116,25 @@
       }
     }
 
-    restartBtn.addEventListener("click", () => {
-      location.reload(); // Refresca la página completamente
+    agentImg.addEventListener("click", () => {
+      startConversation();
     });
 
-    // Iniciar automáticamente al cargar
-    startConversation();
+    stopBtn.addEventListener("click", () => {
+      location.reload();
+    });
+
+    adminBtn.addEventListener("click", () => {
+      window.location.href = "/admin";
+    });
+
+    changePwdBtn.addEventListener("click", () => {
+      alert("Funcionalidad de cambio de contraseña aún no implementada.");
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      window.location.href = "/logout.html";
+    });
   </script>
 </body>
 </html>
