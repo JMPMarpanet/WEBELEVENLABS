@@ -42,7 +42,7 @@ app.post("/login", async (req, res) => {
     return res.status(401).json({ error: "Credenciales incorrectas" });
   }
 
-  res.json({ success: true, is_admin: user.is_admin });
+  res.json({ success: true, is_admin: user.is_admin, username: user.username });
 });
 
 app.get("/signed-url", async (req, res) => {
