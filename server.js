@@ -101,7 +101,7 @@ app.delete("/api/users/:id", async (req, res) => {
 app.post("/api/log-conversation", async (req, res) => {
   const { username, user_agent, timezone } = req.body;
   const { error } = await supabase.from("conversation_logs").insert([
-    { username, user_agent }
+    { username, user_agent, timezone }
   ]);
   if (error) return res.status(500).json({ error: error.message });
   res.status(201).json({ message: "Conversación registrada" });
