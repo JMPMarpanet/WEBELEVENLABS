@@ -143,7 +143,7 @@
         status.innerText = "Conectado. Puedes hablar con el agente.";
 
         // Registrar conversación en Supabase
-        const started_at = new Date().toISOString(); 
+        const started_at = new Date().toLocaleString(); 
         await fetch("/api/log-conversation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
