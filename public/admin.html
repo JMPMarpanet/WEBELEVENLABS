@@ -11,50 +11,14 @@
       max-width: 700px;
       margin: auto;
     }
-
-    h2, h3 {
-      color: #333;
-      text-align: center;
-    }
-
-    form, table {
-      margin-top: 30px;
-      width: 100%;
-    }
-
-    input, select {
-      padding: 8px;
-      margin-bottom: 10px;
-      width: calc(100% - 20px);
-    }
-
-    button {
-      padding: 10px 20px;
-      margin-top: 10px;
-      background-color: #0066ff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .danger {
-      background-color: #d11a2a;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-
-    th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
-    }
-
-    th {
-      background-color: #eee;
-    }
+    h2, h3 { color: #333; text-align: center; }
+    form, table { margin-top: 30px; width: 100%; }
+    input, select { padding: 8px; margin-bottom: 10px; width: calc(100% - 20px); }
+    button { padding: 10px 20px; margin-top: 10px; background-color: #0066ff; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .danger { background-color: #d11a2a; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { padding: 10px; border: 1px solid #ccc; }
+    th { background-color: #eee; }
   </style>
 </head>
 <body>
@@ -63,6 +27,7 @@
   <form id="userForm">
     <input type="text" id="username" placeholder="Nombre de usuario" required />
     <input type="password" id="password" placeholder="Contraseña" required />
+    <input type="text" id="telegram" placeholder="Telegram" />
     <select id="isAdmin">
       <option value="false">Usuario</option>
       <option value="true">Administrador</option>
@@ -73,7 +38,7 @@
   <h3>Usuarios existentes</h3>
   <table id="userTable">
     <thead>
-      <tr><th>Usuario</th><th>Admin</th><th>Acción</th></tr>
+      <tr><th>Usuario</th><th>Admin</th><th>Telegram</th><th>Acción</th></tr>
     </thead>
     <tbody></tbody>
   </table>
@@ -85,31 +50,47 @@
     async function cargarUsuarios() {
       const res = await fetch("/api/users");
       const users = await res.json();
-
       tableBody.innerHTML = "";
       users.forEach(u => {
         const tr = document.createElement("tr");
 
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Eliminar";
-        deleteBtn.className = "danger";
-        deleteBtn.addEventListener("click", async () => {
-          if (confirm(`¿Eliminar al usuario ${u.username}?`)) {
-            await fetch(`/api/users/${u.id}`, { method: "DELETE" });
-            cargarUsuarios();
-          }
-        });
-
         tr.innerHTML = `
           <td>${u.username}</td>
           <td>${u.is_admin ? "✅" : "❌"}</td>
+          <td>${u.telegram || ""}</td>
+          <td>
+            <button class="edit" data-id="${u.id}">Editar</button>
+            <button class="danger delete" data-id="${u.id}" data-username="${u.username}">Eliminar</button>
+          </td>
         `;
-
-        const td = document.createElement("td");
-        td.appendChild(deleteBtn);
-        tr.appendChild(td);
-
         tableBody.appendChild(tr);
+      });
+
+      document.querySelectorAll(".delete").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          if (confirm(`¿Eliminar al usuario ${btn.dataset.username}?`)) {
+            await fetch(`/api/users/${btn.dataset.id}`, { method: "DELETE" });
+            cargarUsuarios();
+          }
+        });
+      });
+
+      document.querySelectorAll(".edit").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.dataset.id;
+          const telegram = prompt("Nuevo valor de Telegram (dejar vacío para no cambiar)");
+          const newPassword = prompt("Nueva contraseña (dejar vacío para no cambiar)");
+          const body = {};
+          if (telegram !== null) body.telegram = telegram;
+          if (newPassword) body.newPassword = newPassword;
+
+          await fetch(`/api/users/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
+          cargarUsuarios();
+        });
       });
     }
 
@@ -117,12 +98,13 @@
       e.preventDefault();
       const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
+      const telegram = document.getElementById("telegram").value;
       const isAdmin = document.getElementById("isAdmin").value === "true";
 
       await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, is_admin: isAdmin }),
+        body: JSON.stringify({ username, password, is_admin: isAdmin, telegram }),
       });
 
       form.reset();

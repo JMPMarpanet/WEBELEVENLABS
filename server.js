@@ -71,18 +71,18 @@ app.get("/admin", (req, res) => {
 
 // API: Obtener todos los usuarios (sin contraseña)
 app.get("/api/users", async (req, res) => {
-  const { data, error } = await supabase.from("users").select("id, username, is_admin");
+  const { data, error } = await supabase.from("users").select("id, username, is_admin, telegram");
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
 
 // API: Crear nuevo usuario
 app.post("/api/users", async (req, res) => {
-  const { username, password, is_admin } = req.body;
+  const { username, password, is_admin, telegram } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const { error } = await supabase.from("users").insert([
-    { username, password: hashedPassword, is_admin }
+    { username, password: hashedPassword, is_admin, telegram }
   ]);
 
   if (error) return res.status(500).json({ error: error.message });
@@ -138,6 +138,26 @@ app.post("/api/change-password", async (req, res) => {
 
   res.json({ message: "Contraseña actualizada correctamente" });
 });
+
+// API: Actualizar Telegram y Contraseña
+app.put("/api/users/:id", async (req, res) => {
+  const { id } = req.params;
+  const { telegram, newPassword } = req.body;
+  const updates = {};
+
+  if (telegram !== undefined) {
+    updates.telegram = telegram;
+  }
+  if (newPassword) {
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    updates.password = hashedNewPassword;
+  }
+
+  const { error } = await supabase.from("users").update(updates).eq("id", id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ message: "Usuario actualizado" });
+});
+
 
 
 app.listen(port, () => console.log(`Servidor corriendo en http://localhost:${port}`));
