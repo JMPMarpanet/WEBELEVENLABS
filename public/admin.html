@@ -32,7 +32,10 @@
       <option value="false">Usuario</option>
       <option value="true">Administrador</option>
     </select>
-    <button type="submit">Agregar Usuario</button>
+    <div style="display: flex; gap: 10px;">
+      <button type="submit">Agregar Usuario</button>
+      <button type="button" id="goDashboard">Ir al Dashboard</button>
+    </div>
   </form>
 
   <h3>Usuarios existentes</h3>
@@ -46,6 +49,11 @@
   <script type="module">
     const tableBody = document.querySelector("#userTable tbody");
     const form = document.getElementById("userForm");
+    const goDashboardBtn = document.getElementById("goDashboard");
+
+    goDashboardBtn.addEventListener("click", () => {
+      window.location.href = "/dashboard";
+    });
 
     async function cargarUsuarios() {
       const res = await fetch("/api/users");
