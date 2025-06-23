@@ -35,8 +35,8 @@ app.post("/login", async (req, res) => {
 
   const validPassword = await bcrypt.compare(String(password), user.password);
   
-  //const password2 = "1234";
-  //bcrypt.hash(password2, 10).then(hash => console.log("Nuevo hash:", hash));
+  const password2 = "1234";
+  bcrypt.hash(password2, 10).then(hash => console.log("Nuevo hash:", hash));
 
   if (!validPassword) {
     return res.status(401).json({ error: "Credenciales incorrectas" });
@@ -124,8 +124,6 @@ app.post("/api/change-password", async (req, res) => {
   if (!valid) {
     return res.status(401).json({ error: "Contraseña actual incorrecta" });
   }
-
-  console.log(bcrypt.hash('1234', 10));
 
   const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
