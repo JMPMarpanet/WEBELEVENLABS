@@ -125,6 +125,8 @@ app.post("/api/change-password", async (req, res) => {
     return res.status(401).json({ error: "Contraseña actual incorrecta" });
   }
 
+  console.log(bcrypt.hash('1234', 10));
+
   const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
   const { error: updateError } = await supabase
