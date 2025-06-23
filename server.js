@@ -33,7 +33,7 @@ app.post("/login", async (req, res) => {
     return res.status(401).json({ error: "Usuario no existe" });
   }
 
-  bcrypt.hash(String(password), 10).then(hash => console.log("Nuevo hash:", hash));
+  //bcrypt.hash(String(password), 10).then(hash => console.log("Nuevo hash:", hash));
 
 
   const validPassword = await bcrypt.compare(String(password), user.password);
