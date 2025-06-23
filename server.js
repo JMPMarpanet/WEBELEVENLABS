@@ -23,9 +23,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  const password2 = "1234";
-  bcrypt.hash(password2, 10).then(hash => console.log("Nuevo hash:", hash));
-
   const { data: user, error } = await supabase
     .from("users")
     .select("*")
@@ -35,6 +32,9 @@ app.post("/login", async (req, res) => {
   if (error || !user) {
     return res.status(401).json({ error: "Credenciales incorrectas" });
   }
+
+  bcrypt.hash(String(password), 10).then(hash => console.log("Nuevo hash:", hash));
+
 
   const validPassword = await bcrypt.compare(String(password), user.password);
 
