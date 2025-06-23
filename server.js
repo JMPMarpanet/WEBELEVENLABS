@@ -30,7 +30,7 @@ app.post("/login", async (req, res) => {
     .single();
 
   if (error || !user) {
-    return res.status(401).json({ error: "Credenciales incorrectas" });
+    return res.status(401).json({ error: "Usuario no existe" });
   }
 
   bcrypt.hash(String(password), 10).then(hash => console.log("Nuevo hash:", hash));
