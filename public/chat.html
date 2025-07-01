@@ -131,15 +131,24 @@
         });
 
         const contentType = res.headers.get("content-type") || "";
+        let respuesta = "";
 
         if (contentType.includes("application/json")) {
           const data = await res.json();
-          const respuesta = data.Respond || JSON.stringify(data);
-          addMessage(respuesta, "bot");
+          respuesta = data.Respond || JSON.stringify(data);
         } else {
-          const text = await res.text();
-          addMessage(text, "bot");
+          respuesta = await res.text();
         }
+
+        addMessage(respuesta, "bot");
+
+        // 🔽 Guardar en Supabase
+        await fetch("/api/chat-log", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ usuario: username, pregunta, respuesta })
+        });
+
       } catch (err) {
         console.error(err);
         addMessage("Error al contactar con el agente.", "bot");

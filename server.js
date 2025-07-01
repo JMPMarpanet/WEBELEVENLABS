@@ -152,6 +152,24 @@ app.post("/api/change-password", async (req, res) => {
   res.json({ message: "Contraseña actualizada correctamente" });
 });
 
+// API: Agregar al chatlog del chat con AI
+app.post("/api/chat-log", async (req, res) => {
+  const { usuario, pregunta, respuesta } = req.body;
+
+  const { error } = await supabase
+    .from("chat_logs")
+    .insert([{ usuario, pregunta, respuesta }]);
+
+  if (error) {
+    console.error("Error guardando chat:", error.message);
+    return res.status(500).json({ error: "No se pudo guardar el mensaje" });
+  }
+
+  res.status(201).json({ message: "Mensaje guardado" });
+});
+
+
+
 // API: Actualizar Telegram y Contraseña
 app.put("/api/users/:id", async (req, res) => {
   const { id } = req.params;
