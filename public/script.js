@@ -18,8 +18,8 @@ document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
     localStorage.setItem("username", data.username);
 
 
-    // 🔄 Ir siempre al dashboard
-    window.location.href = "/dashboard";
+    // 🔄 Ir siempre al ....
+    window.location.href = "/AgenteDeVoz";
   } else {
     document.getElementById("error").innerText = data.error || "Error de login";
   }

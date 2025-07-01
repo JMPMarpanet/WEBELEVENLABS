@@ -61,8 +61,8 @@ app.get("/signed-url", async (req, res) => {
   }
 });
 
-app.get("/dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "dashboard.html"));
+app.get("/AgenteDeVoz", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "AgenteDeVoz.html"));
 });
 
 app.get("/admin", (req, res) => {
