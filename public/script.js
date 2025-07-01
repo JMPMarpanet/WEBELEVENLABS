@@ -19,7 +19,7 @@ document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
 
 
     // 🔄 Ir siempre al ....
-    window.location.href = "/AgenteDeVoz";
+    window.location.href = "/menu";
   } else {
     document.getElementById("error").innerText = data.error || "Error de login";
   }
