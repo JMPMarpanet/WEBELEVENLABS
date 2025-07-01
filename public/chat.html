@@ -142,7 +142,7 @@
         const res = await fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ Usuario: username, Pregunta: pregunta })
+          body: JSON.stringify({ Usuario: username, Pregunta: pregunta, Trigger: "mensaje" })
         });
 
         const contentType = res.headers.get("content-type") || "";
@@ -155,7 +155,21 @@
           respuesta = await res.text();
         }
 
-        addMessage(respuesta, "bot");
+        //Regresar texto o imagen
+        if (respuesta.startsWith("data:image/")) {
+          const img = document.createElement("img");
+          img.src = respuesta;
+          img.style.maxWidth = "200px";
+          img.style.borderRadius = "8px";
+
+          const wrapper = document.createElement("div");
+          wrapper.className = "message bot";
+          wrapper.appendChild(img);
+          chatDiv.appendChild(wrapper);
+          chatDiv.scrollTop = chatDiv.scrollHeight;
+        } else {
+          addMessage(respuesta, "bot");
+        }
 
         // 🔽 Guardar en Supabase
         const creado_en = new Date().toLocaleString(); // Fecha con hora local
