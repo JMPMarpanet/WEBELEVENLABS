@@ -97,8 +97,24 @@
         const historial = await res.json();
 
         historial.forEach(entry => {
+          // Mostrar la pregunta del usuario
           addMessage(entry.pregunta, "user");
-          addMessage(entry.respuesta, "bot");
+
+          // Mostrar respuesta como imagen si es base64
+          if (entry.respuesta.startsWith("data:image/")) {
+            const img = document.createElement("img");
+            img.src = entry.respuesta;
+            img.style.maxWidth = "200px";
+            img.style.borderRadius = "8px";
+
+            const wrapper = document.createElement("div");
+            wrapper.className = "message bot";
+            wrapper.appendChild(img);
+            chatDiv.appendChild(wrapper);
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+          } else {
+            addMessage(entry.respuesta, "bot");
+          }
         });
       } catch (err) {
         console.error("Error cargando historial:", err);
