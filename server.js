@@ -61,6 +61,14 @@ app.get("/signed-url", async (req, res) => {
   }
 });
 
+// Traer de variables el Webhook de n8n
+app.get("/webhook-url", (req, res) => {
+  const url = process.env.N8N_WEBHOOK_URL;
+  if (!url) return res.status(500).json({ error: "Webhook no configurado" });
+  res.json({ webhook: url });
+});
+
+
 app.get("/AgenteDeVoz", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "AgenteDeVoz.html"));
 });

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat AI</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    #chat {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 10px 15px;
+      margin: 10px;
+      border-radius: 12px;
+    }
+
+    .user {
+      background-color: #0066ff;
+      color: white;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+
+    .bot {
+      background-color: #e0e0e0;
+      color: #333;
+      align-self: flex-start;
+      margin-right: auto;
+    }
+
+    #inputContainer {
+      display: flex;
+      padding: 15px;
+      background-color: white;
+      border-top: 1px solid #ccc;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      margin-left: 10px;
+      padding: 12px 20px;
+      font-size: 1em;
+      background-color: #0066ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #menuBtn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: gray;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <button id="menuBtn" onclick="location.href='/menu'">← Menú</button>
+  <div id="chat"></div>
+
+  <div id="inputContainer">
+    <input type="text" id="userInput" placeholder="Escribe tu mensaje..." />
+    <button onclick="sendMessage()">Enviar</button>
+  </div>
+
+  <script>
+    const chatDiv = document.getElementById("chat");
+    const input = document.getElementById("userInput");
+    let webhookUrl = "";
+
+    const username = localStorage.getItem("username") || "anon";
+
+    if (localStorage.getItem("loggedIn") !== "true") {
+      alert("Debes iniciar sesión.");
+      window.location.href = "/";
+    }
+
+    function addMessage(text, type) {
+      const msg = document.createElement("div");
+      msg.className = "message " + type;
+      msg.innerText = text;
+      chatDiv.appendChild(msg);
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+    async function getWebhookUrl() {
+      const res = await fetch("/webhook-url");
+      const data = await res.json();
+      if (!res.ok || !data.webhook) {
+        addMessage("No se pudo cargar la URL del agente.", "bot");
+        throw new Error("No se configuró el webhook.");
+      }
+      webhookUrl = data.webhook;
+    }
+
+    async function sendMessage() {
+      const pregunta = input.value.trim();
+      if (!pregunta) return;
+
+      addMessage(pregunta, "user");
+      input.value = "";
+
+      try {
+        if (!webhookUrl) await getWebhookUrl();
+
+        const res = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ Usuario: username, Pregunta: pregunta })
+        });
+
+        const data = await res.json();
+        const respuesta = data.Respond || JSON.stringify(data);
+        addMessage(respuesta, "bot");
+      } catch (err) {
+        console.error(err);
+        addMessage("Error al contactar con el agente.", "bot");
+      }
+    }
+
+    input.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>

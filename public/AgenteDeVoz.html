@@ -95,17 +95,8 @@
 
   <div id="controls">
     <button id="stopBtn">Parar conversación</button><br />
-    <button id="adminBtn" style="display:none;">Administrar usuarios</button>
-    <button id="changePwdBtn">Cambiar contraseña</button>
+    <button id="menuBtn">Ir al Menú Principal</button>
     <button id="logoutBtn">Cerrar sesión</button>
-  </div>
-
-  <div id="changePasswordForm" style="display:none; margin-top: 30px;">
-    <h3>Cambiar contraseña</h3>
-    <input type="password" id="currentPwd" placeholder="Contraseña actual" /><br />
-    <input type="password" id="newPwd" placeholder="Nueva contraseña" /><br />
-    <button id="confirmPwdBtn">Confirmar cambio</button>
-    <p id="pwdMsg"></p>
   </div>
 
   <script type="module">
@@ -114,11 +105,7 @@
     const status = document.getElementById("status");
     const agentImg = document.getElementById("agentImg");
     const stopBtn = document.getElementById("stopBtn");
-    const adminBtn = document.getElementById("adminBtn");
-    const changePwdBtn = document.getElementById("changePwdBtn");
     const logoutBtn = document.getElementById("logoutBtn");
-    const changeForm = document.getElementById("changePasswordForm");
-    const confirmPwdBtn = document.getElementById("confirmPwdBtn");
 
     let conversation;
     const isLogged = localStorage.getItem("loggedIn") === "true";
@@ -127,10 +114,6 @@
     if (!isLogged) {
       alert("Debes iniciar sesión.");
       window.location.href = "/";
-    }
-
-    if (isAdmin) {
-      adminBtn.style.display = "inline-block";
     }
 
     async function startConversation() {
@@ -181,29 +164,8 @@
       location.reload();
     });
 
-    adminBtn.addEventListener("click", () => {
-      window.location.href = "/admin";
-    });
-
-    changePwdBtn.addEventListener("click", () => {
-      changeForm.style.display = changeForm.style.display === "none" ? "block" : "none";
-    });
-
-    confirmPwdBtn.addEventListener("click", async () => {
-      const username = localStorage.getItem("username");
-      const currentPassword = document.getElementById("currentPwd").value;
-      const newPassword = document.getElementById("newPwd").value;
-      const msg = document.getElementById("pwdMsg");
-
-      const res = await fetch("/api/change-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, currentPassword, newPassword }),
-      });
-
-      const data = await res.json();
-      msg.style.color = res.ok ? "green" : "red";
-      msg.innerText = data.message || data.error;
+    document.getElementById("menuBtn").addEventListener("click", () => {
+      window.location.href = "/menu";
     });
 
     logoutBtn.addEventListener("click", () => {
