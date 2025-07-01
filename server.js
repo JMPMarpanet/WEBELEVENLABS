@@ -69,6 +69,11 @@ app.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
+app.get("/menu", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "menu.html"));
+});
+
+
 // API: Obtener todos los usuarios (sin contraseña)
 app.get("/api/users", async (req, res) => {
   const { data, error } = await supabase.from("users").select("id, username, is_admin, telegram");

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Menu AI</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f0f4f8;
+      text-align: center;
+      padding: 60px;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    button {
+      display: block;
+      width: 250px;
+      margin: 15px auto;
+      padding: 12px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .main { background-color: #0066ff; color: white; }
+    .secondary { background-color: #ccc; }
+
+    #changePwdSection {
+      margin-top: 30px;
+      display: none;
+    }
+
+    input {
+      padding: 8px;
+      margin: 5px;
+      width: 220px;
+    }
+
+    #pwdMsg {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Menú Principal de AI</h2>
+
+  <button class="main" onclick="location.href='/AgenteDeVoz'">🎤 Agente de Voz AI</button>
+  <button class="main" onclick="location.href='/chat.html'">💬 Chat AI</button>
+
+  <div id="adminSection">
+    <button class="secondary" onclick="location.href='/admin'">👤 Administrar usuarios</button>
+  </div>
+
+  <button class="secondary" id="togglePwdBtn">🔐 Cambiar contraseña</button>
+  <button class="secondary" onclick="location.href='/logout.html'">🚪 Cerrar sesión</button>
+
+  <div id="changePwdSection">
+    <h3>Cambiar contraseña</h3>
+    <input type="password" id="currentPwd" placeholder="Contraseña actual"><br>
+    <input type="password" id="newPwd" placeholder="Nueva contraseña"><br>
+    <button onclick="changePassword()">Confirmar cambio</button>
+    <p id="pwdMsg"></p>
+  </div>
+
+  <script>
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    const loggedIn = localStorage.getItem("loggedIn") === "true";
+
+    if (!loggedIn) {
+      alert("Debes iniciar sesión.");
+      window.location.href = "/";
+    }
+
+    if (!isAdmin) {
+      document.getElementById("adminSection").style.display = "none";
+    }
+
+    document.getElementById("togglePwdBtn").addEventListener("click", () => {
+      const section = document.getElementById("changePwdSection");
+      section.style.display = section.style.display === "none" ? "block" : "none";
+    });
+
+    async function changePassword() {
+      const username = localStorage.getItem("username");
+      const currentPassword = document.getElementById("currentPwd").value;
+      const newPassword = document.getElementById("newPwd").value;
+      const msg = document.getElementById("pwdMsg");
+
+      const res = await fetch("/api/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, currentPassword, newPassword }),
+      });
+
+      const data = await res.json();
+      msg.style.color = res.ok ? "green" : "red";
+      msg.innerText = data.message || data.error;
+    }
+  </script>
+</body>
+</html>
