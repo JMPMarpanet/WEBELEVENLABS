@@ -79,27 +79,20 @@
 
     /* Responsividad en móviles */
     @media (max-width: 600px) {
-      .message {
-        max-width: 90%;
+      #inputContainer {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px;
+        gap: 10px;
+        box-sizing: border-box;
       }
 
       #inputContainer input,
       #inputContainer button {
         width: 100%;
+        font-size: 1em;
+        padding: 12px;
         box-sizing: border-box;
-        font-size: 1em;
-        padding: 12px;
-      }
-
-      input, button {
-        width: 100%;
-        margin: 0;
-        font-size: 1em;
-        padding: 12px;
-      }
-
-      button {
-        margin-top: 5px;
       }
 
       #menuBtn {
@@ -107,7 +100,12 @@
         margin: 10px;
         width: calc(100% - 20px);
       }
+
+      .message {
+        max-width: 90%;
+      }
     }
+
   </style>
 </head>
 <body>
