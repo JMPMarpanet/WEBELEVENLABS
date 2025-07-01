@@ -156,9 +156,11 @@ app.post("/api/change-password", async (req, res) => {
 app.post("/api/chat-log", async (req, res) => {
   const { usuario, pregunta, respuesta, creado_en } = req.body;
 
+  const es_imagen = respuesta.startsWith("data:image/");
+
   const { error } = await supabase
     .from("chat_logs")
-    .insert([{ usuario, pregunta, respuesta, creado_en }]);
+    .insert([{ usuario, pregunta, respuesta, creado_en, es_imagen }]);
 
   if (error) {
     console.error("Error guardando chat:", error.message);
