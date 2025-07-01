@@ -168,6 +168,29 @@ app.post("/api/chat-log", async (req, res) => {
   res.status(201).json({ message: "Mensaje guardado" });
 });
 
+//Traer las ultimas conversaciones del chat
+app.get("/api/chat-log", async (req, res) => {
+  const { usuario } = req.query;
+
+  if (!usuario) {
+    return res.status(400).json({ error: "Falta el parámetro 'usuario'" });
+  }
+
+  const { data, error } = await supabase
+    .from("chat_logs")
+    .select("pregunta, respuesta, creado_en")
+    .eq("usuario", usuario)
+    .order("creado_en", { ascending: false })
+    .limit(10);
+
+  if (error) {
+    console.error("Error al obtener historial:", error.message);
+    return res.status(500).json({ error: "No se pudo obtener historial" });
+  }
+
+  res.json(data.reverse()); // Para mostrarlo en orden cronológico
+});
+
 
 
 // API: Actualizar Telegram y Contraseña

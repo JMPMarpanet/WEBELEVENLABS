@@ -91,6 +91,21 @@
 
     const username = localStorage.getItem("username") || "anon";
 
+    async function cargarHistorial() {
+      try {
+        const res = await fetch(`/api/chat-log?usuario=${encodeURIComponent(username)}`);
+        const historial = await res.json();
+
+        historial.forEach(entry => {
+          addMessage(entry.pregunta, "user");
+          addMessage(entry.respuesta, "bot");
+        });
+      } catch (err) {
+        console.error("Error cargando historial:", err);
+      }
+    }
+    
+
     if (localStorage.getItem("loggedIn") !== "true") {
       alert("Debes iniciar sesión.");
       window.location.href = "/";
@@ -160,6 +175,10 @@
     input.addEventListener("keypress", function (e) {
       if (e.key === "Enter") sendMessage();
     });
+
+    // Cargar historial al inicio
+    cargarHistorial();
+
   </script>
 </body>
 </html>
