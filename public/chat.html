@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chat AI</title>
   <style>
     body {
@@ -17,6 +18,8 @@
       flex: 1;
       padding: 20px;
       overflow-y: auto;
+      word-wrap: break-word;
+      max-width: 100%;
     }
 
     .message {
@@ -73,6 +76,35 @@
       background-color: gray;
       font-size: 0.9em;
     }
+
+    /* Responsividad en móviles */
+    @media (max-width: 600px) {
+      .message {
+        max-width: 90%;
+      }
+
+      #inputContainer {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      input, button {
+        width: 100%;
+        margin: 0;
+        font-size: 1em;
+        padding: 12px;
+      }
+
+      button {
+        margin-top: 5px;
+      }
+
+      #menuBtn {
+        position: static;
+        margin: 10px;
+        width: calc(100% - 20px);
+      }
+    }
   </style>
 </head>
 <body>
@@ -97,10 +129,8 @@
         const historial = await res.json();
 
         historial.forEach(entry => {
-          // Mostrar la pregunta del usuario
           addMessage(entry.pregunta, "user");
 
-          // Mostrar respuesta como imagen si es base64
           if (entry.respuesta.startsWith("data:image/")) {
             const img = document.createElement("img");
             img.src = entry.respuesta;
@@ -120,7 +150,6 @@
         console.error("Error cargando historial:", err);
       }
     }
-    
 
     if (localStorage.getItem("loggedIn") !== "true") {
       alert("Debes iniciar sesión.");
@@ -171,7 +200,6 @@
           respuesta = await res.text();
         }
 
-        //Regresar texto o imagen
         if (respuesta.startsWith("data:image/")) {
           const img = document.createElement("img");
           img.src = respuesta;
@@ -187,8 +215,7 @@
           addMessage(respuesta, "bot");
         }
 
-        // 🔽 Guardar en Supabase
-        const creado_en = new Date().toLocaleString(); // Fecha con hora local
+        const creado_en = new Date().toLocaleString();
         await fetch("/api/chat-log", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -201,14 +228,11 @@
       }
     }
 
-
     input.addEventListener("keypress", function (e) {
       if (e.key === "Enter") sendMessage();
     });
 
-    // Cargar historial al inicio
     cargarHistorial();
-
   </script>
 </body>
 </html>
