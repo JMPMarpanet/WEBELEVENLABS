@@ -129,31 +129,23 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ Usuario: username, Pregunta: pregunta })
         });
-        
-        console.log("Código HTTP:", res.status);
 
-        //const data = await res.json();
-        //const respuesta = data.Respond || JSON.stringify(data);
-        //addMessage(respuesta, "bot");
+        const contentType = res.headers.get("content-type") || "";
 
-        const text = await res.text();
-        console.log("Respuesta cruda:", text);
-
-        try {
-          const data = JSON.parse(text);
-          const respuesta = data.Respond || text;
+        if (contentType.includes("application/json")) {
+          const data = await res.json();
+          const respuesta = data.Respond || JSON.stringify(data);
           addMessage(respuesta, "bot");
-        } catch (e) {
-          console.error("No se pudo parsear JSON:", e);
-          addMessage("Respuesta inválida del agente: " + text, "bot");
+        } else {
+          const text = await res.text();
+          addMessage(text, "bot");
         }
-
-        } catch (err) {
+      } catch (err) {
         console.error(err);
         addMessage("Error al contactar con el agente.", "bot");
-
       }
     }
+
 
     input.addEventListener("keypress", function (e) {
       if (e.key === "Enter") sendMessage();
