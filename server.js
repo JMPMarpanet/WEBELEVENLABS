@@ -154,11 +154,11 @@ app.post("/api/change-password", async (req, res) => {
 
 // API: Agregar al chatlog del chat con AI
 app.post("/api/chat-log", async (req, res) => {
-  const { usuario, pregunta, respuesta } = req.body;
+  const { usuario, pregunta, respuesta, creado_en } = req.body;
 
   const { error } = await supabase
     .from("chat_logs")
-    .insert([{ usuario, pregunta, respuesta }]);
+    .insert([{ usuario, pregunta, respuesta, creado_en }]);
 
   if (error) {
     console.error("Error guardando chat:", error.message);

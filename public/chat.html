@@ -143,10 +143,11 @@
         addMessage(respuesta, "bot");
 
         // 🔽 Guardar en Supabase
+        const creado_en = new Date().toLocaleString(); // Fecha con hora local
         await fetch("/api/chat-log", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ usuario: username, pregunta, respuesta })
+          body: JSON.stringify({ usuario: username, pregunta, respuesta, creado_en })
         });
 
       } catch (err) {
