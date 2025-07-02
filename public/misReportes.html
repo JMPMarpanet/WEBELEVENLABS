@@ -63,7 +63,13 @@
       const embed = document.getElementById("embed-container");
       const titulo = document.getElementById("reporte-titulo");
       const contenedor = document.getElementById("powerbi-container");
-      const models = window.powerbi.models;
+      
+      const models = window.powerbi?.models;
+      if (!models) {
+        console.error("Power BI models no está disponible.");
+        contenedor.innerHTML = "Error al cargar Power BI.";
+        return;
+      }
 
       embed.classList.remove("hidden");
       titulo.textContent = info.nombre;
