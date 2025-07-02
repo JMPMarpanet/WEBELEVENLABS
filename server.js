@@ -89,6 +89,9 @@ app.get("/adminReportes", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "adminReportes.html"));
 });
 
+app.get("/misReportes", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "misReportes.html"));
+});
 
 // API: Obtener todos los usuarios (sin contraseña)
 app.get("/api/users", async (req, res) => {

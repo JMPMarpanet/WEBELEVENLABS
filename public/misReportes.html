@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Reportes</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.19.1/dist/powerbi.min.js"></script>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="mb-4">
+      <a href="/menu" class="inline-block bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded">← Volver al Menú</a>
+    </div>
+    <h1 class="text-2xl font-bold mb-4">Mis Reportes</h1>
+    <div id="lista-reportes" class="space-y-4"></div>
+    <div id="embed-container" class="mt-8 hidden">
+      <h2 class="text-xl font-semibold mb-2" id="reporte-titulo"></h2>
+      <div id="powerbi-container" class="h-[600px] border rounded"></div>
+    </div>
+  </div>
+
+  <script>
+    const username = localStorage.getItem("usuario");
+    if (!username) {
+      alert("Debes iniciar sesión");
+      window.location.href = "/";
+    }
+
+    async function cargarReportes() {
+      const res = await fetch("/api/asignaciones");
+      const todos = await res.json();
+      const propios = todos.filter(r => r.usuario === username);
+
+      // Agrupar por grupo
+      const agrupado = {};
+      propios.forEach(r => {
+        const grupo = r.reportes_powerbi?.grupo || "Sin grupo";
+        if (!agrupado[grupo]) agrupado[grupo] = [];
+        agrupado[grupo].push(r);
+      });
+
+      const contenedor = document.getElementById("lista-reportes");
+      contenedor.innerHTML = "";
+
+      Object.keys(agrupado).forEach(grupo => {
+        const grupoDiv = document.createElement("div");
+        grupoDiv.innerHTML = `<h3 class='text-lg font-semibold'>${grupo}</h3>`;
+
+        agrupado[grupo].forEach(r => {
+          const btn = document.createElement("button");
+          btn.textContent = r.reportes_powerbi.nombre;
+          btn.className = "block text-left w-full bg-white shadow px-4 py-2 rounded hover:bg-blue-50 border";
+          btn.onclick = () => mostrarReporte(r.reportes_powerbi);
+          grupoDiv.appendChild(btn);
+        });
+
+        contenedor.appendChild(grupoDiv);
+      });
+    }
+
+    async function mostrarReporte(info) {
+      const embed = document.getElementById("embed-container");
+      const titulo = document.getElementById("reporte-titulo");
+      const contenedor = document.getElementById("powerbi-container");
+      embed.classList.remove("hidden");
+      titulo.textContent = info.nombre;
+      contenedor.innerHTML = "Cargando...";
+
+      const res = await fetch("https://nietsnie.app.n8n.cloud/webhook/generar-token-powerbi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ groupId: info.group_id, reportId: info.report_id })
+      });
+      const datos = await res.json();
+
+      contenedor.innerHTML = "";
+      const embedConfig = {
+        type: 'report',
+        tokenType: window.powerbi.models.TokenType.Embed,
+        accessToken: datos.embedToken,
+        embedUrl: datos.embedUrl,
+        id: datos.report_id,
+        permissions: window.powerbi.models.Permissions.All,
+        settings: {
+          panes: {
+            filters: { visible: false },
+            pageNavigation: { visible: true }
+          }
+        }
+      };
+
+      const powerbi = new window.powerbi.service.Service(window.powerbi.factories.hpmFactory, window.powerbi.factories.wpmpFactory, window.powerbi.factories.routerFactory);
+      powerbi.embed(contenedor, embedConfig);
+    }
+
+    window.onload = cargarReportes;
+  </script>
+</body>
+</html>
