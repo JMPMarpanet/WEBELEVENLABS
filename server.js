@@ -265,7 +265,7 @@ app.delete("/api/reportes/:id", async (req, res) => {
 app.get("/api/asignaciones", async (req, res) => {
   const { data, error } = await supabase
     .from("usuarios_reportes")
-    .select("id, usuario, id_reporte, reportes_powerbi(nombre, grupo)")
+    .select("id, usuario, id_reporte, reportes_powerbi(nombre, grupo, group_id, report_id)")
     .order("id");
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
