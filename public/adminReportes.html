@@ -206,9 +206,66 @@
           <td class="px-4 py-2">${r.activo ? '✅' : '❌'}</td>
           <td class="px-4 py-2">
             <button onclick="eliminarReporte(${r.id})" class="text-red-600">Eliminar</button>
+            <button onclick="editarReporte(${r.id})" class="text-blue-600 mr-2">Editar</button>
           </td>`;
         tabla.appendChild(fila);
       });
+    }
+
+    function editarReporte(id) {
+      const fila = [...document.querySelectorAll("#tabla-reportes tr")]
+        .find(row => row.children[0]?.textContent === String(id));
+      if (!fila) {
+        alert("No se encontró el reporte");
+        return;
+      }
+
+      const nombre = fila.children[1].textContent;
+      const reportId = fila.children[2].textContent;
+      const groupId = fila.children[3].textContent;
+      const grupo = fila.children[4].textContent;
+      const activo = fila.children[5].textContent.trim() === "✅";
+
+      document.getElementById('nuevo_nombre').value = nombre;
+      document.getElementById('nuevo_report_id').value = reportId;
+      document.getElementById('nuevo_group_id').value = groupId;
+      document.getElementById('nuevo_grupo').value = grupo;
+      document.getElementById('nuevo_activo').checked = activo;
+
+      const form = document.getElementById('formulario-reporte');
+      form.classList.remove('hidden');
+      form.dataset.editingId = id;
+    }
+
+    async function guardarNuevoReporte(event) {
+      event.preventDefault();
+
+      const payload = {
+        nombre: document.getElementById('nuevo_nombre').value,
+        report_id: document.getElementById('nuevo_report_id').value,
+        group_id: document.getElementById('nuevo_group_id').value,
+        grupo: document.getElementById('nuevo_grupo').value,
+        activo: document.getElementById('nuevo_activo').checked
+      };
+
+      const id = document.getElementById('formulario-reporte').dataset.editingId;
+      const url = id ? `/api/reportes/${id}` : '/api/reportes';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        cargarReportes();
+        document.getElementById('formulario-reporte').classList.add('hidden');
+        event.target.reset();
+        delete document.getElementById('formulario-reporte').dataset.editingId;
+      } else {
+        alert("Error al guardar el reporte");
+      }
     }
 
     function mostrarFormularioAgregar() {
