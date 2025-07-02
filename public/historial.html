@@ -72,6 +72,11 @@
     <p id="conteo"></p>
   </div>
 
+  <div class="section" id="resumenFiltrado">
+    <h3>Volumen de Interacciones Filtradas</h3>
+    <p id="conteoFiltrado"></p>
+  </div>
+
   <div class="section">
     <h3>Chat desde Web</h3>
     <table id="tablaChat">
@@ -130,6 +135,9 @@
       }));      
       llenarTabla("tablaTelegram", telegram.map(t => [t.usuario, t.fuente, t.texto, t.created_at]));
       llenarTabla("tablaVoz", voz.map(v => [v.username, v.started_at]));
+      document.getElementById("conteoFiltrado").innerText =
+        `Chat: ${chat.length}, Telegram: ${telegram.length}, Voz: ${voz.length}`;
+
     }
 
     function llenarTabla(id, rows) {
