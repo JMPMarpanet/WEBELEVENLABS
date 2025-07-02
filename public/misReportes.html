@@ -1,26 +1,42 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mis Reportes</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.19.0/dist/powerbi.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mis Reportes</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+
 </head>
 <body class="bg-gray-100 p-6">
-  <div class="max-w-6xl mx-auto">
-    <div class="mb-4">
-      <a href="/menu" class="inline-block bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded">← Volver al Menú</a>
-    </div>
-    <h1 class="text-2xl font-bold mb-4">Mis Reportes</h1>
-    <div id="lista-reportes" class="space-y-4"></div>
-    <div id="embed-container" class="mt-8 hidden">
-      <h2 class="text-xl font-semibold mb-2" id="reporte-titulo"></h2>
-      <div id="powerbi-container" class="h-[600px] border rounded"></div>
-    </div>
-  </div>
+<div class="max-w-6xl mx-auto">
+<div class="mb-4">
+<a class="inline-block bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded" href="/menu">← Volver al Menú</a>
+</div>
+<h1 class="text-2xl font-bold mb-4">Mis Reportes</h1>
+<div class="space-y-4" id="lista-reportes"></div>
+<div class="mt-8 hidden" id="embed-container">
+<h2 class="text-xl font-semibold mb-2" id="reporte-titulo"></h2>
+<div class="h-[600px] border rounded" id="powerbi-container"></div>
+</div>
+</div>
+<script>
+    function esperarPowerBI() {
+      return new Promise((resolve, reject) => {
+        const intervalo = setInterval(() => {
+          if (window.powerbi && window.powerbi.models) {
+            clearInterval(intervalo);
+            resolve(window.powerbi.models);
+          }
+        }, 100);
+        setTimeout(() => {
+          clearInterval(intervalo);
+          reject("Power BI no se cargó a tiempo.");
+        }, 5000);
+      });
+    }
 
-  <script>
+
     const username = localStorage.getItem("username");
     if (!username) {
       alert("Debes iniciar sesión");
@@ -59,26 +75,19 @@
       });
     }
 
-    function esperarPowerBI() {
-      return new Promise((resolve, reject) => {
-        const intervalo = setInterval(() => {
-          if (window.powerbi && window.powerbi.models) {
-            clearInterval(intervalo);
-            resolve(window.powerbi.models);
-          }
-        }, 100);
-        setTimeout(() => {
-          clearInterval(intervalo);
-          reject("Power BI no se cargó a tiempo.");
-        }, 5000); // espera máximo 5 segundos
-      });
-    }
-
     async function mostrarReporte(info) {
       const embed = document.getElementById("embed-container");
       const titulo = document.getElementById("reporte-titulo");
       const contenedor = document.getElementById("powerbi-container");
-      
+      let models;
+  try {
+    models = await esperarPowerBI();
+  } catch (e) {
+    console.error(e);
+    contenedor.innerHTML = "Error al cargar Power BI.";
+    return;
+  }
+
       embed.classList.remove("hidden");
       titulo.textContent = info.nombre;
       contenedor.innerHTML = "Cargando...";
@@ -95,15 +104,6 @@
       const datos = await res.json();
       contenedor.innerHTML = "";
 
-      let models;
-      try {
-      models = await esperarPowerBI();
-      } catch (e) {
-      console.error(e);
-      contenedor.innerHTML = "Error al cargar Power BI.";
-      return;
-      }
-      
       const embedConfig = {
         type: 'report',
         id: datos.report_id,
@@ -129,5 +129,5 @@
 
     window.onload = cargarReportes;
   </script>
-</body>
+<script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.19.0/dist/powerbi.js"></script></body>
 </html>
