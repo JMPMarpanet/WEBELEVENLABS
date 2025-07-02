@@ -95,17 +95,15 @@
           background: window.powerbi.models.BackgroundType.Transparent
         }
       };
-      console.log("HOLA");
-      
+
       const existing = powerbi.get(contenedor);
       if (existing) powerbi.reset(contenedor);
 
       powerbi.embed(contenedor, embedConfig);
-      console.log("HOLA");
 
     }
 
-
+    console.log("HOLA");
     window.onload = cargarReportes;
   </script>
 </body>
