@@ -17,6 +17,7 @@
     <div class="bg-white rounded shadow p-4 mb-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">Reportes</h2>
+        <button onclick="mostrarFormularioAgregar()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">+ Agregar Reporte</button>
       </div>
       <table class="min-w-full table-auto">
         <thead>
@@ -194,6 +195,17 @@
           </td>`;
         tabla.appendChild(fila);
       });
+    }
+
+    function mostrarFormularioAgregar() {
+      const formulario = document.getElementById('formulario-reporte');
+      formulario.classList.remove('hidden');
+      formulario.dataset.editingId = '';
+      document.getElementById('nuevo_nombre').value = '';
+      document.getElementById('nuevo_report_id').value = '';
+      document.getElementById('nuevo_group_id').value = '';
+      document.getElementById('nuevo_grupo').value = '';
+      document.getElementById('nuevo_activo').checked = true;
     }
 
     function mostrarFormularioAsignacion() {
