@@ -58,7 +58,9 @@
 
   <div class="section">
     <label>Usuario:</label>
-    <input type="text" id="filtroUsuario" placeholder="usuario opcional" />
+    <select id="filtroUsuario">
+      <option value="">(Todos los usuarios)</option>
+    </select>
     <label>Desde:</label>
     <input type="date" id="filtroDesde" />
     <label>Hasta:</label>
@@ -155,6 +157,21 @@
           tr.appendChild(td);
         });
         tbody.appendChild(tr);
+      });
+    }
+    
+    cargarUsuarios();
+
+    async function cargarUsuarios() {
+      const res = await fetch("/api/users");
+      const usuarios = await res.json();
+      const select = document.getElementById("filtroUsuario");
+
+      usuarios.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.username;
+        opt.innerText = u.username;
+        select.appendChild(opt);
       });
     }
 
