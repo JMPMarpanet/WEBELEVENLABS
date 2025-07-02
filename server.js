@@ -294,6 +294,27 @@ app.delete("/api/asignaciones/:id", async (req, res) => {
   res.json({ message: "Asignación eliminada" });
 });
 
+// insertar que se vio un reporte
+app.post('/api/historial', async (req, res) => {
+  const { usuario, nombre_reporte, report_id, group_id, visto_en } = req.body;
+
+  if (!usuario || !nombre_reporte || !report_id || !group_id || !visto_en) {
+    return res.status(400).json({ error: 'Datos incompletos' });
+  }
+
+  const { data, error } = await supabase
+    .from('historial_reportes')
+    .insert([{ usuario, nombre_reporte, report_id, group_id, visto_en }]);
+
+  if (error) {
+    console.error('Error insertando historial:', error);
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json({ ok: true });
+});
+
+
 
 // ==========================
 // HISTORIAL DE CONSULTAS

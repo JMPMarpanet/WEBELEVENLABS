@@ -36,6 +36,23 @@
         });
 
         const datos = await res.json();
+        
+        // Guardar historial de visualización
+        const usuario = localStorage.getItem("usuario");
+        const visto_en = new Date().toISOString();
+
+        await fetch("/api/historial", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            usuario,
+            nombre_reporte: nombre,
+            report_id: reportId,
+            group_id: groupId,
+            visto_en
+          })
+        });
+
         const container = document.getElementById("reporte-container");
         const models = window['powerbi-client']?.models;
 
