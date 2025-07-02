@@ -71,6 +71,7 @@
     if (!usuario || isAdmin !== 'true') {
       window.location.href = '/menu';
     }
+    
     async function cargarUsuarios() {
       const res = await fetch('/api/users');
       const usuarios = await res.json();
