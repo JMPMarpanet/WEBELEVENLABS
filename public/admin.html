@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de Administración</title>
   <style>
     body {
@@ -19,6 +20,31 @@
     table { border-collapse: collapse; width: 100%; }
     th, td { padding: 10px; border: 1px solid #ccc; }
     th { background-color: #eee; }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 20px;
+      }
+
+      input, select, button {
+        width: 100% !important;
+        box-sizing: border-box;
+        font-size: 1em;
+      }
+
+      form div {
+        flex-direction: column;
+      }
+
+      table {
+        font-size: 0.9em;
+      }
+
+      th, td {
+        word-break: break-word;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -32,9 +58,10 @@
       <option value="false">Usuario</option>
       <option value="true">Administrador</option>
     </select>
-    <div style="display: flex; gap: 10px;">
+    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
       <button type="submit">Agregar Usuario</button>
-      <button type="button" id="goDashboard">Ir al Dashboard</button>
+      <button type="button" id="goMenu">Ir al Menú</button>
+      <button type="button" id="goHistorial">Ver Historial de Consultas</button>
     </div>
   </form>
 
@@ -49,10 +76,16 @@
   <script type="module">
     const tableBody = document.querySelector("#userTable tbody");
     const form = document.getElementById("userForm");
-    const goDashboardBtn = document.getElementById("goDashboard");
+    
+    const goMenuBtn = document.getElementById("goMenu");
+    const goHistorialBtn = document.getElementById("goHistorial");
 
-    goDashboardBtn.addEventListener("click", () => {
-      window.location.href = "/AgenteDeVoz";
+    goMenuBtn.addEventListener("click", () => {
+      window.location.href = "/menu";
+    });
+
+    goHistorialBtn.addEventListener("click", () => {
+      window.location.href = "/historial"; // luego creamos esta página
     });
 
     async function cargarUsuarios() {
