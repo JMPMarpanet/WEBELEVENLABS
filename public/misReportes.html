@@ -63,6 +63,7 @@
       const embed = document.getElementById("embed-container");
       const titulo = document.getElementById("reporte-titulo");
       const contenedor = document.getElementById("powerbi-container");
+      const models = window.powerbi.models;
 
       embed.classList.remove("hidden");
       titulo.textContent = info.nombre;
@@ -80,21 +81,19 @@
       const datos = await res.json();
       contenedor.innerHTML = "";
 
-      console.log("Datos recibidos:", datos);
-
       const embedConfig = {
         type: 'report',
         id: datos.report_id,
         embedUrl: datos.embedUrl,
         accessToken: datos.embedToken,
-        tokenType: window.powerbi.models.TokenType.Embed,
-        permissions: window.powerbi.models.Permissions.All,
+        tokenType: models.TokenType.Embed,
+        permissions: models.Permissions.All,
         settings: {
           panes: {
             filters: { visible: false },
             pageNavigation: { visible: true }
           },
-          background: window.powerbi.models.BackgroundType.Transparent
+          background: models.BackgroundType.Transparent
         }
       };
 
