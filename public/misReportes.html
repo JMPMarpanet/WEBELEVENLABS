@@ -67,11 +67,15 @@
       titulo.textContent = info.nombre;
       contenedor.innerHTML = "Cargando...";
 
-      const res = await fetch("https://nietsnie.app.n8n.cloud/webhook/generar-token-powerbi", {
+        const res = await fetch("https://nietsnie.app.n8n.cloud/webhook/generar-token-powerbi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ groupId: info.group_id, reportId: info.report_id })
-      });
+        body: JSON.stringify({
+            groupId: info.group_id,
+            reportId: info.report_id
+        })
+        });
+
       const datos = await res.json();
 
       contenedor.innerHTML = "";
