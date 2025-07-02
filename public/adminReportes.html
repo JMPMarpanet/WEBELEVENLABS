@@ -8,6 +8,9 @@
 </head>
 <body class="bg-gray-100 p-6">
   <div class="max-w-6xl mx-auto">
+    <div class="mb-4">
+      <a href="/admin" class="inline-block bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded">← Volver a Admin</a>
+    </div>
     <h1 class="text-2xl font-bold mb-4">Administración de Reportes Power BI</h1>
 
     <!-- Panel de Reportes -->
@@ -24,6 +27,7 @@
             <th class="px-4 py-2">Group ID</th>
             <th class="px-4 py-2">Grupo</th>
             <th class="px-4 py-2">Activo</th>
+            <th class="px-4 py-2">Acciones</th>
           </tr>
         </thead>
         <tbody id="tabla-reportes"></tbody>
@@ -61,6 +65,12 @@
   </div>
 
   <script>
+    // Redirigir si el usuario no es admin
+    const usuario = localStorage.getItem('usuario');
+    const isAdmin = localStorage.getItem('is_admin');
+    if (!usuario || isAdmin !== 'true') {
+      window.location.href = '/menu';
+    }
     async function cargarUsuarios() {
       const res = await fetch('/api/users');
       const usuarios = await res.json();
@@ -141,10 +151,24 @@
       else alert("No se pudo eliminar asignación");
     }
 
-    function mostrarFormularioAsignacion() {
-      document.getElementById('formulario-asignacion').classList.toggle('hidden');
-      cargarUsuarios();
-      cargarReportesParaAsignacion();
+    async function eliminarReporte(id) {
+      try {
+        const asignacionesRes = await fetch('/api/asignaciones');
+        const asignaciones = await asignacionesRes.json();
+        const asignado = asignaciones.some(a => a.id_reporte === id);
+        if (asignado) {
+          alert("No puedes eliminar este reporte porque está asignado a uno o más usuarios.");
+          return;
+        }
+
+        if (!confirm("¿Eliminar este reporte?")) return;
+        const res = await fetch(`/api/reportes/${id}`, { method: 'DELETE' });
+        if (res.ok) cargarReportes();
+        else alert("No se pudo eliminar el reporte");
+      } catch (err) {
+        console.error("Error verificando asignaciones:", err);
+        alert("Error al verificar si el reporte está asignado");
+      }
     }
 
     async function cargarReportes() {
@@ -161,9 +185,18 @@
           <td class="px-4 py-2">${r.report_id}</td>
           <td class="px-4 py-2">${r.group_id}</td>
           <td class="px-4 py-2">${r.grupo || ''}</td>
-          <td class="px-4 py-2">${r.activo ? '✅' : '❌'}</td>`;
+          <td class="px-4 py-2">${r.activo ? '✅' : '❌'}</td>
+          <td class="px-4 py-2">
+            <button onclick="eliminarReporte(${r.id})" class="text-red-600">Eliminar</button>
+          </td>`;
         tabla.appendChild(fila);
       });
+    }
+
+    function mostrarFormularioAsignacion() {
+      document.getElementById('formulario-asignacion').classList.toggle('hidden');
+      cargarUsuarios();
+      cargarReportesParaAsignacion();
     }
 
     window.onload = () => {

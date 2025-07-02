@@ -76,6 +76,11 @@
 
   <script type="module">
 
+    if (localStorage.getItem("is_admin") !== "true") {
+      alert("Solo los administradores pueden acceder a esta página.");
+      window.location.href = "/menu";
+    }
+
     if (localStorage.getItem("loggedIn") !== "true") {
       alert("Debes iniciar sesión.");
       window.location.href = "/";
