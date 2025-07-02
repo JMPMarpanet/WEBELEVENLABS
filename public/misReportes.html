@@ -100,6 +100,18 @@
       if (existing) powerbi.reset(contenedor);
 
       powerbi.embed(contenedor, embedConfig);
+      report.on("loaded", function () {
+        console.log("✅ Reporte cargado correctamente");
+      });
+
+      report.on("rendered", function () {
+        console.log("🎨 Reporte renderizado");
+      });
+
+      report.on("error", function (event) {
+        console.error("❌ Error al cargar el reporte:", event.detail);
+      });
+
     }
 
 
