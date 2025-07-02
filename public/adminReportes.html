@@ -13,22 +13,25 @@
     </div>
     <h1 class="text-2xl font-bold mb-4">Administración de Reportes Power BI</h1>
 
-    <td class="px-4 py-2">${r.activo ? '✅' : '❌'}</td>
-
-      <!-- Formulario agregar reporte -->
-      <div id="formulario-reporte" class="mt-4 hidden">
-        <h3 class="text-lg font-semibold mb-2">Agregar nuevo reporte</h3>
-        <form onsubmit="guardarNuevoReporte(event)" class="grid grid-cols-1 gap-4">
-          <input type="text" id="nuevo_nombre" placeholder="Nombre del reporte" required class="p-2 border rounded">
-          <input type="text" id="nuevo_report_id" placeholder="Report ID" required class="p-2 border rounded">
-          <input type="text" id="nuevo_group_id" placeholder="Group ID" required class="p-2 border rounded">
-          <input type="text" id="nuevo_grupo" placeholder="Grupo (opcional)" class="p-2 border rounded">
-          <label class="inline-flex items-center">
-            <input type="checkbox" id="nuevo_activo" class="mr-2"> Activo
-          </label>
-          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Guardar Reporte</button>
-        </form>
+    <!-- Panel de Reportes -->
+    <div class="bg-white rounded shadow p-4 mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Reportes</h2>
       </div>
+      <table class="min-w-full table-auto">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="px-4 py-2">ID</th>
+            <th class="px-4 py-2">Nombre</th>
+            <th class="px-4 py-2">Report ID</th>
+            <th class="px-4 py-2">Group ID</th>
+            <th class="px-4 py-2">Grupo</th>
+            <th class="px-4 py-2">Activo</th>
+            <th class="px-4 py-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-reportes"></tbody>
+      </table>
     </div>
 
     <!-- Panel de Asignaciones -->
@@ -120,7 +123,6 @@
         cargarAsignaciones();
         document.getElementById('formulario-asignacion').classList.add('hidden');
         event.target.reset();
-        delete document.getElementById('formulario-reporte').dataset.editingId;
       } else {
         alert("Error al asignar reporte");
       }
@@ -186,9 +188,8 @@
           <td class="px-4 py-2">${r.report_id}</td>
           <td class="px-4 py-2">${r.group_id}</td>
           <td class="px-4 py-2">${r.grupo || ''}</td>
-          $1
+          <td class="px-4 py-2">${r.activo ? '✅' : '❌'}</td>
           <td class="px-4 py-2">
-            <button onclick="editarReporte(${r.id})" class="text-blue-600 mr-2">Editar</button>
             <button onclick="eliminarReporte(${r.id})" class="text-red-600">Eliminar</button>
           </td>`;
         tabla.appendChild(fila);
@@ -199,49 +200,6 @@
       document.getElementById('formulario-asignacion').classList.toggle('hidden');
       cargarUsuarios();
       cargarReportesParaAsignacion();
-    }
-
-    async function guardarNuevoReporte(event) {
-      event.preventDefault();
-      const payload = {
-        nombre: document.getElementById('nuevo_nombre').value,
-        report_id: document.getElementById('nuevo_report_id').value,
-        group_id: document.getElementById('nuevo_group_id').value,
-        grupo: document.getElementById('nuevo_grupo').value,
-        activo: document.getElementById('nuevo_activo').checked
-      };
-      const id = document.getElementById('formulario-reporte').dataset.editingId;
-      const url = id ? `/api/reportes/${id}` : '/api/reportes';
-      const method = id ? 'PUT' : 'POST';
-      const res = await fetch(url, { method,
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        cargarReportes();
-        document.getElementById('formulario-reporte').classList.add('hidden');
-        event.target.reset();
-      } else {
-        alert('Error al guardar el reporte');
-      }
-    }
-
-    function editarReporte(id) {
-      const fila = document.querySelector(`#tabla-reportes tr td:first-child:contains('${id}')`).parentElement;
-      const nombre = fila.children[1].textContent;
-      const reportId = fila.children[2].textContent;
-      const groupId = fila.children[3].textContent;
-      const grupo = fila.children[4].textContent;
-      const activo = fila.children[5].textContent === '✅';
-
-      document.getElementById('nuevo_nombre').value = nombre;
-      document.getElementById('nuevo_report_id').value = reportId;
-      document.getElementById('nuevo_group_id').value = groupId;
-      document.getElementById('nuevo_grupo').value = grupo;
-      document.getElementById('nuevo_activo').checked = activo;
-      document.getElementById('formulario-reporte').classList.remove('hidden');
-      document.getElementById('formulario-reporte').dataset.editingId = id;
     }
 
     window.onload = () => {
