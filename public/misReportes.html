@@ -63,40 +63,45 @@
       const embed = document.getElementById("embed-container");
       const titulo = document.getElementById("reporte-titulo");
       const contenedor = document.getElementById("powerbi-container");
+
       embed.classList.remove("hidden");
       titulo.textContent = info.nombre;
       contenedor.innerHTML = "Cargando...";
 
-        const res = await fetch("https://nietsnie.app.n8n.cloud/webhook/generar-token-powerbi", {
+      const res = await fetch("https://nietsnie.app.n8n.cloud/webhook/generar-token-powerbi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            groupId: info.group_id,
-            reportId: info.report_id
+          groupId: info.group_id,
+          reportId: info.report_id
         })
-        });
+      });
 
       const datos = await res.json();
-
       contenedor.innerHTML = "";
+
       const embedConfig = {
         type: 'report',
-        tokenType: window.powerbi.models.TokenType.Embed,
-        accessToken: datos.embedToken,
-        embedUrl: datos.embedUrl,
         id: datos.report_id,
+        embedUrl: datos.embedUrl,
+        accessToken: datos.embedToken,
+        tokenType: window.powerbi.models.TokenType.Embed,
         permissions: window.powerbi.models.Permissions.All,
         settings: {
           panes: {
             filters: { visible: false },
             pageNavigation: { visible: true }
-          }
+          },
+          background: window.powerbi.models.BackgroundType.Transparent
         }
       };
 
-      const powerbi = new window.powerbi.service.Service(window.powerbi.factories.hpmFactory, window.powerbi.factories.wpmpFactory, window.powerbi.factories.routerFactory);
+      const existing = powerbi.get(contenedor);
+      if (existing) powerbi.reset(contenedor);
+
       powerbi.embed(contenedor, embedConfig);
     }
+
 
     window.onload = cargarReportes;
   </script>
