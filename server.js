@@ -422,3 +422,23 @@ app.get("/api/historial/conversation-log", async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
+
+// 5. Reportes de Power BI
+app.get('/api/historial/reportes-vistos', async (req, res) => {
+  const { usuario, desde, hasta } = req.query;
+
+  let query = supabase.from('historial_reportes').select('*');
+
+  if (usuario) query = query.eq('usuario', usuario);
+  if (desde) query = query.gte('visto_en', desde);
+  if (hasta) query = query.lte('visto_en', hasta);
+
+  const { data, error } = await query.order('visto_en', { ascending: false });
+
+  if (error) {
+    console.error('Error consultando historial_reportes:', error);
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
+});

@@ -96,6 +96,16 @@
   </div>
 
   <div class="section">
+    <h3>Reportes Visualizados</h3>
+    <table id="tablaReportes">
+      <thead>
+        <tr><th>Usuario</th><th>Reporte</th><th>Fecha</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="section">
     <h3>Ejecuciones del Agente de Voz</h3>
     <table id="tablaVoz">
       <thead><tr><th>Usuario</th><th>Fecha de Inicio</th></tr></thead>
@@ -120,14 +130,15 @@
       if (desde) params.append("desde", desde);
       if (hasta) params.append("hasta", hasta);
 
-      const [volumen, chat, telegram, voz] = await Promise.all([
+      const [volumen, chat, telegram, voz, reportes] = await Promise.all([
         fetch("/api/historial/volumen").then(r => r.json()),
         fetch(`/api/historial/chat-log?${params}`).then(r => r.json()),
         fetch(`/api/historial/conversacion-agente?${params}`).then(r => r.json()),
-        fetch(`/api/historial/conversation-log?${params}`).then(r => r.json())
+        fetch(`/api/historial/conversation-log?${params}`).then(r => r.json()),
+        fetch(`/api/historial/reportes-vistos?${params}`).then(r => r.json())
       ]);
 
-      document.getElementById("conteo").innerText = `Chat: ${volumen.chat}, Telegram: ${volumen.telegram}, Voz: ${volumen.voz}`;
+      document.getElementById("conteo").innerText = `Chat: ${volumen.chat}, Telegram: ${volumen.telegram}, Voz: ${volumen.voz}, Reportes: ${volumen.reportes}`;
 
       llenarTabla("tablaChat", chat.map(c => {
         const respuesta = c.es_imagen
@@ -138,7 +149,8 @@
       llenarTabla("tablaTelegram", telegram.map(t => [t.usuario, t.fuente, t.texto, t.created_at]));
       llenarTabla("tablaVoz", voz.map(v => [v.username, v.started_at]));
       document.getElementById("conteoFiltrado").innerText =
-        `Chat: ${chat.length}, Telegram: ${telegram.length}, Voz: ${voz.length}`;
+        `Chat: ${chat.length}, Telegram: ${telegram.length}, Voz: ${voz.length}, Reportes: ${reportes.length}`;
+      llenarTabla("tablaReportes", reportes.map(r => [r.usuario, r.nombre_reporte, r.visto_en]));
 
     }
 
