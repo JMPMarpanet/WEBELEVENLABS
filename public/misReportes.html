@@ -51,7 +51,11 @@
           const btn = document.createElement("button");
           btn.textContent = r.reportes_powerbi.nombre;
           btn.className = "block text-left w-full bg-white shadow px-4 py-2 rounded hover:bg-blue-50 border";
-          btn.onclick = () => mostrarReporte(r.reportes_powerbi);
+          //btn.onclick = () => mostrarReporte(r.reportes_powerbi);
+          btn.onclick = () => {
+            const url = `/verReporte.html?nombre=${encodeURIComponent(r.reportes_powerbi.nombre)}&groupId=${r.reportes_powerbi.group_id}&reportId=${r.reportes_powerbi.report_id}`;
+            window.open(url, '_blank');
+          };
           grupoDiv.appendChild(btn);
         });
 

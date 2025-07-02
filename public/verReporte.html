@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reporte</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.19.1/dist/powerbi.min.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    #reporte-container { height: 100vh; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div id="reporte-container"></div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const nombre = params.get('nombre') || 'Reporte';
+    const reportId = params.get('reportId');
+    const groupId = params.get('groupId');
+
+    if (!reportId || !groupId) {
+      document.body.innerHTML = '<p class="text-center mt-10 text-red-500">Faltan parámetros en la URL</p>';
+      throw new Error("Faltan reportId o groupId");
+    }
+
+    document.title = nombre;
+
+    async function cargarReporte() {
+      try {
+        const res = await fetch("https://nietsnie.app.n8n.cloud/webhook/generar-token-powerbi", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ groupId, reportId })
+        });
+
+        const datos = await res.json();
+        const container = document.getElementById("reporte-container");
+        const models = window['powerbi-client']?.models;
+
+        const config = {
+          type: 'report',
+          id: datos.report_id,
+          embedUrl: datos.embedUrl,
+          accessToken: datos.embedToken,
+          tokenType: models.TokenType.Embed,
+          permissions: models.Permissions.All,
+          settings: {
+            panes: {
+              filters: { visible: false },
+              pageNavigation: { visible: true }
+            },
+            background: models.BackgroundType.Transparent
+          }
+        };
+
+        const powerbiService = window.powerbi;
+        const existing = powerbiService.get(container);
+        if (existing) powerbiService.reset(container);
+
+        const report = powerbiService.embed(container, config);
+
+        report.on("loaded", () => console.log("Reporte cargado"));
+        report.on("rendered", () => console.log("Reporte renderizado"));
+        report.on("error", e => console.error("Error al mostrar reporte:", e.detail));
+
+      } catch (err) {
+        console.error("Error general:", err);
+        document.body.innerHTML = '<p class="text-center mt-10 text-red-500">No se pudo cargar el reporte</p>';
+      }
+    }
+
+    window.onload = cargarReporte;
+  </script>
+</body>
+</html>

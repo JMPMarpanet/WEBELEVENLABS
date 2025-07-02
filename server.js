@@ -93,6 +93,11 @@ app.get("/misReportes", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "misReportes.html"));
 });
 
+app.get("/verReporte", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "verReporte.html"));
+});
+
+
 // API: Obtener todos los usuarios (sin contraseña)
 app.get("/api/users", async (req, res) => {
   const { data, error } = await supabase.from("users").select("id, username, is_admin, telegram");
