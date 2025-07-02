@@ -336,9 +336,9 @@ app.get("/api/historial/volumen", async (req, res) => {
         .from("conversation_logs")
         .select("started_at", { count: "exact", head: false }),
 
-        supabase
+      supabase
         .from("historial_reportes")
-        .select("started_at", { count: "exact", head: false }),
+        .select("started_at", { count: "exact", head: false })
     ]);
 
     res.json({

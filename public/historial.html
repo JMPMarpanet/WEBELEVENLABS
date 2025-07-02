@@ -192,7 +192,7 @@
     async function cargarSoloVolumen() {
       const volumen = await fetch("/api/historial/volumen").then(r => r.json());
       document.getElementById("conteo").innerText =
-        `Chat: ${volumen.chat}, Telegram: ${volumen.telegram}, Voz: ${volumen.voz}`;
+        `Chat: ${volumen.chat}, Telegram: ${volumen.telegram}, Voz: ${volumen.voz}, Reportes: ${volumen.reportes}`;
     }
 
   </script>
