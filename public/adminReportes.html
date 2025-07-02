@@ -14,37 +14,20 @@
     <div class="bg-white rounded shadow p-4 mb-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">Reportes</h2>
-        <button onclick="mostrarFormularioReporte()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">+ Agregar Reporte</button>
       </div>
       <table class="min-w-full table-auto">
         <thead>
           <tr class="bg-gray-200">
+            <th class="px-4 py-2">ID</th>
             <th class="px-4 py-2">Nombre</th>
             <th class="px-4 py-2">Report ID</th>
             <th class="px-4 py-2">Group ID</th>
             <th class="px-4 py-2">Grupo</th>
             <th class="px-4 py-2">Activo</th>
-            <th class="px-4 py-2">Acciones</th>
           </tr>
         </thead>
         <tbody id="tabla-reportes"></tbody>
       </table>
-
-      <!-- Formulario nuevo reporte -->
-      <div id="formulario-reporte" class="mt-4 hidden">
-        <h3 class="text-lg font-semibold mb-2">Nuevo Reporte</h3>
-        <form onsubmit="guardarReporte(event)" class="grid grid-cols-1 gap-4">
-          <input type="hidden" id="id_reporte_edit">
-          <input required type="text" id="nombre" placeholder="Nombre del reporte" class="p-2 border rounded">
-          <input required type="text" id="report_id" placeholder="Report ID" class="p-2 border rounded">
-          <input required type="text" id="group_id" placeholder="Group ID" class="p-2 border rounded">
-          <input type="text" id="grupo" placeholder="Grupo (opcional)" class="p-2 border rounded">
-          <label class="inline-flex items-center">
-            <input type="checkbox" id="activo" class="mr-2"> Activo
-          </label>
-          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Guardar</button>
-        </form>
-      </div>
     </div>
 
     <!-- Panel de Asignaciones -->
@@ -69,8 +52,8 @@
       <div id="formulario-asignacion" class="mt-4 hidden">
         <h3 class="text-lg font-semibold mb-2">Asignar Reporte a Usuario</h3>
         <form onsubmit="guardarAsignacion(event)" class="grid grid-cols-1 gap-4">
-          <input required type="text" id="usuario_asignar" placeholder="Usuario (email o nombre)" class="p-2 border rounded">
-          <input required type="number" id="reporte_asignar" placeholder="ID del Reporte" class="p-2 border rounded">
+          <select required id="usuario_asignar" class="p-2 border rounded"></select>
+          <select required id="reporte_asignar" class="p-2 border rounded"></select>
           <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Asignar</button>
         </form>
       </div>
@@ -78,112 +61,46 @@
   </div>
 
   <script>
-    async function cargarReportes() {
-      try {
-        const res = await fetch('/api/reportes');
-        const data = await res.json();
-        const tabla = document.getElementById('tabla-reportes');
-        tabla.innerHTML = '';
-        data.forEach(r => {
-          tabla.innerHTML += `
-            <tr class="border-t">
-              <td class="px-4 py-2">${r.nombre}</td>
-              <td class="px-4 py-2">${r.report_id}</td>
-              <td class="px-4 py-2">${r.group_id}</td>
-              <td class="px-4 py-2">${r.grupo || ''}</td>
-              <td class="px-4 py-2">${r.activo ? '✅' : '❌'}</td>
-              <td class="px-4 py-2">
-                <button onclick='editarReporte(${JSON.stringify(r)})' class="text-blue-600">Editar</button> |
-                <button onclick="eliminarReporte(${r.id})" class="text-red-600">Eliminar</button>
-              </td>
-            </tr>`;
-        });
-      } catch (err) {
-        console.error("Error al cargar reportes:", err);
-      }
-    }
-
-    async function cargarAsignaciones() {
-      try {
-        const res = await fetch('/api/asignaciones');
-        const data = await res.json();
-        const tabla = document.getElementById('tabla-asignaciones');
-        tabla.innerHTML = '';
-        data.forEach(a => {
-          tabla.innerHTML += `
-            <tr class="border-t">
-              <td class="px-4 py-2">${a.usuario}</td>
-              <td class="px-4 py-2">${a.reportes_powerbi?.nombre || '—'}</td>
-              <td class="px-4 py-2">${a.reportes_powerbi?.grupo || ''}</td>
-              <td class="px-4 py-2">
-                <button onclick="eliminarAsignacion(${a.id})" class="text-red-600">Eliminar</button>
-              </td>
-            </tr>`;
-        });
-      } catch (err) {
-        console.error("Error al cargar asignaciones:", err);
-      }
-    }
-
-    function mostrarFormularioReporte() {
-      document.getElementById('formulario-reporte').classList.toggle('hidden');
-    }
-
-    function mostrarFormularioAsignacion() {
-      document.getElementById('formulario-asignacion').classList.toggle('hidden');
-    }
-
-    async function guardarReporte(event) {
-      event.preventDefault();
-      const id = document.getElementById('id_reporte_edit').value;
-      const payload = {
-        nombre: document.getElementById('nombre').value,
-        report_id: document.getElementById('report_id').value,
-        group_id: document.getElementById('group_id').value,
-        grupo: document.getElementById('grupo').value,
-        activo: document.getElementById('activo').checked,
-      };
-      const url = id ? `/api/reportes/${id}` : '/api/reportes';
-      const method = id ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+    async function cargarUsuarios() {
+      const res = await fetch('/api/users');
+      const usuarios = await res.json();
+      const select = document.getElementById('usuario_asignar');
+      select.innerHTML = '';
+      usuarios.forEach(u => {
+        const option = document.createElement('option');
+        option.value = u.username;
+        option.textContent = u.username;
+        select.appendChild(option);
       });
-      if (res.ok) {
-        cargarReportes();
-        document.getElementById('formulario-reporte').classList.add('hidden');
-        event.target.reset();
-        document.getElementById('id_reporte_edit').value = '';
-      } else {
-        alert("Error al guardar reporte");
-      }
     }
 
-    function editarReporte(r) {
-      document.getElementById('id_reporte_edit').value = r.id;
-      document.getElementById('nombre').value = r.nombre;
-      document.getElementById('report_id').value = r.report_id;
-      document.getElementById('group_id').value = r.group_id;
-      document.getElementById('grupo').value = r.grupo || '';
-      document.getElementById('activo').checked = r.activo;
-      document.getElementById('formulario-reporte').classList.remove('hidden');
-    }
-
-    async function eliminarReporte(id) {
-      if (!confirm("¿Eliminar este reporte?")) return;
-      const res = await fetch(`/api/reportes/${id}`, { method: 'DELETE' });
-      if (res.ok) cargarReportes();
-      else alert("No se pudo eliminar");
+    async function cargarReportesParaAsignacion() {
+      const res = await fetch('/api/reportes');
+      const reportes = await res.json();
+      const select = document.getElementById('reporte_asignar');
+      select.innerHTML = '';
+      reportes.filter(r => r.activo).forEach(r => {
+        const option = document.createElement('option');
+        option.value = r.id;
+        option.textContent = `${r.nombre} (ID: ${r.id})`;
+        select.appendChild(option);
+      });
     }
 
     async function guardarAsignacion(event) {
       event.preventDefault();
-      const payload = {
-        usuario: document.getElementById('usuario_asignar').value,
-        id_reporte: parseInt(document.getElementById('reporte_asignar').value)
-      };
+      const usuario = document.getElementById('usuario_asignar').value;
+      const id_reporte = parseInt(document.getElementById('reporte_asignar').value);
+
+      const resCheck = await fetch('/api/asignaciones');
+      const asignaciones = await resCheck.json();
+      const yaExiste = asignaciones.some(a => a.usuario === usuario && a.id_reporte === id_reporte);
+      if (yaExiste) {
+        alert("Este usuario ya tiene asignado este reporte.");
+        return;
+      }
+
+      const payload = { usuario, id_reporte };
       const res = await fetch('/api/asignaciones', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -198,11 +115,55 @@
       }
     }
 
+    async function cargarAsignaciones() {
+      const res = await fetch('/api/asignaciones');
+      const data = await res.json();
+      const tabla = document.getElementById('tabla-asignaciones');
+      tabla.innerHTML = '';
+      data.forEach(a => {
+        const fila = document.createElement('tr');
+        fila.className = 'border-t';
+        fila.innerHTML = `
+          <td class="px-4 py-2">${a.usuario}</td>
+          <td class="px-4 py-2">${a.reportes_powerbi?.nombre || '—'}</td>
+          <td class="px-4 py-2">${a.reportes_powerbi?.grupo || ''}</td>
+          <td class="px-4 py-2">
+            <button onclick="eliminarAsignacion(${a.id})" class="text-red-600">Eliminar</button>
+          </td>`;
+        tabla.appendChild(fila);
+      });
+    }
+
     async function eliminarAsignacion(id) {
       if (!confirm("¿Eliminar esta asignación?")) return;
       const res = await fetch(`/api/asignaciones/${id}`, { method: 'DELETE' });
       if (res.ok) cargarAsignaciones();
       else alert("No se pudo eliminar asignación");
+    }
+
+    function mostrarFormularioAsignacion() {
+      document.getElementById('formulario-asignacion').classList.toggle('hidden');
+      cargarUsuarios();
+      cargarReportesParaAsignacion();
+    }
+
+    async function cargarReportes() {
+      const res = await fetch('/api/reportes');
+      const reportes = await res.json();
+      const tabla = document.getElementById('tabla-reportes');
+      tabla.innerHTML = '';
+      reportes.forEach(r => {
+        const fila = document.createElement('tr');
+        fila.className = 'border-t';
+        fila.innerHTML = `
+          <td class="px-4 py-2">${r.id}</td>
+          <td class="px-4 py-2">${r.nombre}</td>
+          <td class="px-4 py-2">${r.report_id}</td>
+          <td class="px-4 py-2">${r.group_id}</td>
+          <td class="px-4 py-2">${r.grupo || ''}</td>
+          <td class="px-4 py-2">${r.activo ? '✅' : '❌'}</td>`;
+        tabla.appendChild(fila);
+      });
     }
 
     window.onload = () => {
