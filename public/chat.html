@@ -121,6 +121,11 @@
   </div>
 
   <script>
+
+    if (localStorage.getItem("loggedIn") !== "true") {
+      alert("Debes iniciar sesión.");
+      window.location.href = "/";
+    }
     const chatDiv = document.getElementById("chat");
     const input = document.getElementById("userInput");
     let webhookUrl = "";

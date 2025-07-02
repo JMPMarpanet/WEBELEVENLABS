@@ -74,6 +74,11 @@
   </table>
 
   <script type="module">
+
+    if (localStorage.getItem("loggedIn") !== "true") {
+      alert("Debes iniciar sesión.");
+      window.location.href = "/";
+    }
     const tableBody = document.querySelector("#userTable tbody");
     const form = document.getElementById("userForm");
     

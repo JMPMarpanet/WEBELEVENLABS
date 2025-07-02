@@ -97,6 +97,12 @@
   </div>
 
   <script>
+
+    if (localStorage.getItem("loggedIn") !== "true") {
+      alert("Debes iniciar sesión.");
+      window.location.href = "/";
+    }
+
     async function consultarHistorial() {
       const usuario = document.getElementById("filtroUsuario").value;
       const desde = document.getElementById("filtroDesde").value;
@@ -116,7 +122,12 @@
 
       document.getElementById("conteo").innerText = `Chat: ${volumen.chat}, Telegram: ${volumen.telegram}, Voz: ${volumen.voz}`;
 
-      llenarTabla("tablaChat", chat.map(c => [c.usuario, c.pregunta, c.respuesta, c.creado_en]));
+      llenarTabla("tablaChat", chat.map(c => {
+        const respuesta = c.es_imagen
+          ? `<img src="${c.respuesta}" style="max-width: 120px; border-radius: 8px;" />`
+          : c.respuesta;
+        return [c.usuario, c.pregunta, respuesta, c.creado_en];
+      }));      
       llenarTabla("tablaTelegram", telegram.map(t => [t.usuario, t.fuente, t.texto, t.created_at]));
       llenarTabla("tablaVoz", voz.map(v => [v.username, v.started_at]));
     }
@@ -128,14 +139,25 @@
         const tr = document.createElement("tr");
         row.forEach(cell => {
           const td = document.createElement("td");
-          td.innerText = cell;
+          if (typeof cell === "string" && cell.startsWith("<img")) {
+            td.innerHTML = cell; // insertar imagen como HTML
+          } else {
+            td.innerText = cell;
+          }
           tr.appendChild(td);
         });
         tbody.appendChild(tr);
       });
     }
 
-    consultarHistorial(); // carga inicial
+    cargarSoloVolumen();
+
+    async function cargarSoloVolumen() {
+      const volumen = await fetch("/api/historial/volumen").then(r => r.json());
+      document.getElementById("conteo").innerText =
+        `Chat: ${volumen.chat}, Telegram: ${volumen.telegram}, Voz: ${volumen.voz}`;
+    }
+
   </script>
 </body>
 </html>

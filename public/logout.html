@@ -29,6 +29,8 @@
     // Elimina las variables de sesión
     localStorage.removeItem("loggedIn");
     localStorage.removeItem("isAdmin");
+    localStorage.removeItem("username");
+    localStorage.removeItem("sessionId"); // por si usas sesiones
 
     // Redirige a la página de login después de 2 segundos
     setTimeout(() => {

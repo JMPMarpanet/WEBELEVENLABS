@@ -76,6 +76,12 @@
     </form>
     <p id="error"></p>
   </div>
+  
+  <script>
+    if (localStorage.getItem("loggedIn") === "true") {
+      window.location.href = "/menu";
+    }
+  </script>
 
   <script src="script.js"></script>
 </body>
