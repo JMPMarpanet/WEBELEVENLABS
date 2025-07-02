@@ -102,8 +102,12 @@
         }
       };
 
-      const existing = powerbi.get(contenedor);
-      if (existing) powerbi.reset(contenedor);
+      try {
+        const existing = powerbi.get(contenedor);
+        if (existing) powerbi.reset(contenedor);
+      } catch (e) {
+        // No hay instancia previa, no pasa nada
+      }
 
       powerbi.embed(contenedor, embedConfig);
 
