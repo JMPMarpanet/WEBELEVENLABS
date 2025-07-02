@@ -80,6 +80,8 @@
       const datos = await res.json();
       contenedor.innerHTML = "";
 
+      console.log("Datos recibidos:", datos);
+
       const embedConfig = {
         type: 'report',
         id: datos.report_id,
@@ -103,7 +105,6 @@
 
     }
 
-    console.log("HOLA");
     window.onload = cargarReportes;
   </script>
 </body>
