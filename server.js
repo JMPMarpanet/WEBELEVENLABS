@@ -85,6 +85,9 @@ app.get("/historial", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "historial.html"));
 });
 
+app.get("/adminReportes", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "adminReportes.html"));
+});
 
 
 // API: Obtener todos los usuarios (sin contraseña)
@@ -218,6 +221,71 @@ app.put("/api/users/:id", async (req, res) => {
 });
 
 app.listen(port, () => console.log(`Servidor corriendo en http://localhost:${port}`));
+
+// GET: Obtener todos los reportes
+app.get("/api/reportes", async (req, res) => {
+  const { data, error } = await supabase.from("reportes_powerbi").select("*").order("id");
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// POST: Agregar un nuevo reporte
+app.post("/api/reportes", async (req, res) => {
+  const { nombre, report_id, group_id, grupo, activo } = req.body;
+  const { error } = await supabase.from("reportes_powerbi").insert([
+    { nombre, report_id, group_id, grupo, activo }
+  ]);
+  if (error) return res.status(500).json({ error: error.message });
+  res.status(201).json({ message: "Reporte agregado" });
+});
+
+// PUT: Editar un reporte
+app.put("/api/reportes/:id", async (req, res) => {
+  const { id } = req.params;
+  const { nombre, report_id, group_id, grupo, activo } = req.body;
+  const { error } = await supabase.from("reportes_powerbi")
+    .update({ nombre, report_id, group_id, grupo, activo })
+    .eq("id", id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ message: "Reporte actualizado" });
+});
+
+// DELETE: Eliminar un reporte
+app.delete("/api/reportes/:id", async (req, res) => {
+  const { id } = req.params;
+  const { error } = await supabase.from("reportes_powerbi").delete().eq("id", id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ message: "Reporte eliminado" });
+});
+
+// GET: Listar asignaciones con nombre del reporte
+app.get("/api/asignaciones", async (req, res) => {
+  const { data, error } = await supabase
+    .from("usuarios_reportes")
+    .select("id, usuario, id_reporte, reportes_powerbi(nombre, grupo)")
+    .order("id");
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// POST: Asignar reporte a usuario
+app.post("/api/asignaciones", async (req, res) => {
+  const { usuario, id_reporte } = req.body;
+  const { error } = await supabase
+    .from("usuarios_reportes")
+    .insert([{ usuario, id_reporte }]);
+  if (error) return res.status(500).json({ error: error.message });
+  res.status(201).json({ message: "Asignación guardada" });
+});
+
+// DELETE: Eliminar asignación
+app.delete("/api/asignaciones/:id", async (req, res) => {
+  const { id } = req.params;
+  const { error } = await supabase.from("usuarios_reportes").delete().eq("id", id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ message: "Asignación eliminada" });
+});
+
 
 // ==========================
 // HISTORIAL DE CONSULTAS

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Reportes</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Administración de Reportes Power BI</h1>
+
+    <!-- Panel de Reportes -->
+    <div class="bg-white rounded shadow p-4 mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Reportes</h2>
+        <button onclick="mostrarFormularioReporte()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">+ Agregar Reporte</button>
+      </div>
+      <table class="min-w-full table-auto">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="px-4 py-2">Nombre</th>
+            <th class="px-4 py-2">Report ID</th>
+            <th class="px-4 py-2">Group ID</th>
+            <th class="px-4 py-2">Grupo</th>
+            <th class="px-4 py-2">Activo</th>
+            <th class="px-4 py-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-reportes"></tbody>
+      </table>
+
+      <!-- Formulario nuevo reporte -->
+      <div id="formulario-reporte" class="mt-4 hidden">
+        <h3 class="text-lg font-semibold mb-2">Nuevo Reporte</h3>
+        <form onsubmit="guardarReporte(event)" class="grid grid-cols-1 gap-4">
+          <input type="hidden" id="id_reporte_edit">
+          <input required type="text" id="nombre" placeholder="Nombre del reporte" class="p-2 border rounded">
+          <input required type="text" id="report_id" placeholder="Report ID" class="p-2 border rounded">
+          <input required type="text" id="group_id" placeholder="Group ID" class="p-2 border rounded">
+          <input type="text" id="grupo" placeholder="Grupo (opcional)" class="p-2 border rounded">
+          <label class="inline-flex items-center">
+            <input type="checkbox" id="activo" class="mr-2"> Activo
+          </label>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Guardar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Panel de Asignaciones -->
+    <div class="bg-white rounded shadow p-4">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Asignaciones a Usuarios</h2>
+        <button onclick="mostrarFormularioAsignacion()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">+ Asignar Reporte</button>
+      </div>
+      <table class="min-w-full table-auto">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="px-4 py-2">Usuario</th>
+            <th class="px-4 py-2">Nombre del Reporte</th>
+            <th class="px-4 py-2">Grupo</th>
+            <th class="px-4 py-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-asignaciones"></tbody>
+      </table>
+
+      <!-- Formulario asignar reporte -->
+      <div id="formulario-asignacion" class="mt-4 hidden">
+        <h3 class="text-lg font-semibold mb-2">Asignar Reporte a Usuario</h3>
+        <form onsubmit="guardarAsignacion(event)" class="grid grid-cols-1 gap-4">
+          <input required type="text" id="usuario_asignar" placeholder="Usuario (email o nombre)" class="p-2 border rounded">
+          <input required type="number" id="reporte_asignar" placeholder="ID del Reporte" class="p-2 border rounded">
+          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Asignar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function cargarReportes() {
+      try {
+        const res = await fetch('/api/reportes');
+        const data = await res.json();
+        const tabla = document.getElementById('tabla-reportes');
+        tabla.innerHTML = '';
+        data.forEach(r => {
+          tabla.innerHTML += `
+            <tr class="border-t">
+              <td class="px-4 py-2">${r.nombre}</td>
+              <td class="px-4 py-2">${r.report_id}</td>
+              <td class="px-4 py-2">${r.group_id}</td>
+              <td class="px-4 py-2">${r.grupo || ''}</td>
+              <td class="px-4 py-2">${r.activo ? '✅' : '❌'}</td>
+              <td class="px-4 py-2">
+                <button onclick='editarReporte(${JSON.stringify(r)})' class="text-blue-600">Editar</button> |
+                <button onclick="eliminarReporte(${r.id})" class="text-red-600">Eliminar</button>
+              </td>
+            </tr>`;
+        });
+      } catch (err) {
+        console.error("Error al cargar reportes:", err);
+      }
+    }
+
+    async function cargarAsignaciones() {
+      try {
+        const res = await fetch('/api/asignaciones');
+        const data = await res.json();
+        const tabla = document.getElementById('tabla-asignaciones');
+        tabla.innerHTML = '';
+        data.forEach(a => {
+          tabla.innerHTML += `
+            <tr class="border-t">
+              <td class="px-4 py-2">${a.usuario}</td>
+              <td class="px-4 py-2">${a.reportes_powerbi?.nombre || '—'}</td>
+              <td class="px-4 py-2">${a.reportes_powerbi?.grupo || ''}</td>
+              <td class="px-4 py-2">
+                <button onclick="eliminarAsignacion(${a.id})" class="text-red-600">Eliminar</button>
+              </td>
+            </tr>`;
+        });
+      } catch (err) {
+        console.error("Error al cargar asignaciones:", err);
+      }
+    }
+
+    function mostrarFormularioReporte() {
+      document.getElementById('formulario-reporte').classList.toggle('hidden');
+    }
+
+    function mostrarFormularioAsignacion() {
+      document.getElementById('formulario-asignacion').classList.toggle('hidden');
+    }
+
+    async function guardarReporte(event) {
+      event.preventDefault();
+      const id = document.getElementById('id_reporte_edit').value;
+      const payload = {
+        nombre: document.getElementById('nombre').value,
+        report_id: document.getElementById('report_id').value,
+        group_id: document.getElementById('group_id').value,
+        grupo: document.getElementById('grupo').value,
+        activo: document.getElementById('activo').checked,
+      };
+      const url = id ? `/api/reportes/${id}` : '/api/reportes';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        cargarReportes();
+        document.getElementById('formulario-reporte').classList.add('hidden');
+        event.target.reset();
+        document.getElementById('id_reporte_edit').value = '';
+      } else {
+        alert("Error al guardar reporte");
+      }
+    }
+
+    function editarReporte(r) {
+      document.getElementById('id_reporte_edit').value = r.id;
+      document.getElementById('nombre').value = r.nombre;
+      document.getElementById('report_id').value = r.report_id;
+      document.getElementById('group_id').value = r.group_id;
+      document.getElementById('grupo').value = r.grupo || '';
+      document.getElementById('activo').checked = r.activo;
+      document.getElementById('formulario-reporte').classList.remove('hidden');
+    }
+
+    async function eliminarReporte(id) {
+      if (!confirm("¿Eliminar este reporte?")) return;
+      const res = await fetch(`/api/reportes/${id}`, { method: 'DELETE' });
+      if (res.ok) cargarReportes();
+      else alert("No se pudo eliminar");
+    }
+
+    async function guardarAsignacion(event) {
+      event.preventDefault();
+      const payload = {
+        usuario: document.getElementById('usuario_asignar').value,
+        id_reporte: parseInt(document.getElementById('reporte_asignar').value)
+      };
+      const res = await fetch('/api/asignaciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        cargarAsignaciones();
+        document.getElementById('formulario-asignacion').classList.add('hidden');
+        event.target.reset();
+      } else {
+        alert("Error al asignar reporte");
+      }
+    }
+
+    async function eliminarAsignacion(id) {
+      if (!confirm("¿Eliminar esta asignación?")) return;
+      const res = await fetch(`/api/asignaciones/${id}`, { method: 'DELETE' });
+      if (res.ok) cargarAsignaciones();
+      else alert("No se pudo eliminar asignación");
+    }
+
+    window.onload = () => {
+      cargarReportes();
+      cargarAsignaciones();
+    }
+  </script>
+</body>
+</html>

@@ -62,6 +62,7 @@
       <button type="submit">Agregar Usuario</button>
       <button type="button" id="goMenu">Ir al Menú</button>
       <button type="button" id="goHistorial">Ver Historial de Consultas</button>
+      <button type="button" id="goReportes">Administrar Reportes Power BI</button>
     </div>
   </form>
 
@@ -84,6 +85,7 @@
     
     const goMenuBtn = document.getElementById("goMenu");
     const goHistorialBtn = document.getElementById("goHistorial");
+    const goReportesBtn = document.getElementById("goReportes");
 
     goMenuBtn.addEventListener("click", () => {
       window.location.href = "/menu";
@@ -91,6 +93,10 @@
 
     goHistorialBtn.addEventListener("click", () => {
       window.location.href = "/historial"; // luego creamos esta página
+    });
+
+    goReportesBtn.addEventListener("click", () => {
+      window.location.href = "/adminReportes.html";
     });
 
     async function cargarUsuarios() {
