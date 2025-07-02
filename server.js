@@ -323,7 +323,7 @@ app.post('/api/historial', async (req, res) => {
 // 1. Volumen total por canal
 app.get("/api/historial/volumen", async (req, res) => {
   try {
-    const [chat, telegram, voz] = await Promise.all([
+    const [chat, telegram, voz, reportes] = await Promise.all([
       supabase
         .from("chat_logs")
         .select("creado_en", { count: "exact", head: false }),
@@ -335,12 +335,17 @@ app.get("/api/historial/volumen", async (req, res) => {
       supabase
         .from("conversation_logs")
         .select("started_at", { count: "exact", head: false }),
+
+        supabase
+        .from("historial_reportes")
+        .select("started_at", { count: "exact", head: false }),
     ]);
 
     res.json({
       chat: chat.count || 0,
       telegram: telegram.count || 0,
-      voz: voz.count || 0
+      voz: voz.count || 0,
+      reportes: reportes.count || 0
     });
   } catch (err) {
     res.status(500).json({ error: "Error consultando volumen" });
