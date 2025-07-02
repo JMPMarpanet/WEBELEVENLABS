@@ -33,6 +33,20 @@
         </thead>
         <tbody id="tabla-reportes"></tbody>
       </table>
+      <!-- Formulario agregar / editar reporte -->
+      <div id="formulario-reporte" class="mt-4 hidden bg-gray-50 p-4 border rounded">
+        <h3 class="text-lg font-semibold mb-2">Agregar / Editar Reporte</h3>
+        <form onsubmit="guardarNuevoReporte(event)" class="grid grid-cols-1 gap-4">
+          <input type="text" id="nuevo_nombre" placeholder="Nombre del reporte" required class="p-2 border rounded">
+          <input type="text" id="nuevo_report_id" placeholder="Report ID" required class="p-2 border rounded">
+          <input type="text" id="nuevo_group_id" placeholder="Group ID" required class="p-2 border rounded">
+          <input type="text" id="nuevo_grupo" placeholder="Grupo (opcional)" class="p-2 border rounded">
+          <label class="inline-flex items-center">
+            <input type="checkbox" id="nuevo_activo" class="mr-2"> Activo
+          </label>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Guardar Reporte</button>
+        </form>
+      </div>
     </div>
 
     <!-- Panel de Asignaciones -->
