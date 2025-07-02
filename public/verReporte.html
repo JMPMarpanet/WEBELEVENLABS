@@ -38,7 +38,7 @@
         const datos = await res.json();
         
         // Guardar historial de visualización
-        const usuario = localStorage.getItem("usuario");
+        const usuario = localStorage.getItem("username") || "anon";
         const visto_en = new Date().toISOString();
 
         await fetch("/api/historial", {
