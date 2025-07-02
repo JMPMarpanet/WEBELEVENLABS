@@ -76,6 +76,12 @@
         })
         });
 
+        console.log("Enviado:", {
+        groupId: info.group_id,
+        reportId: info.report_id
+        });
+
+
       const datos = await res.json();
 
       contenedor.innerHTML = "";
