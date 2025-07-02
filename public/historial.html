@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Historial de Consultas</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f0f4f8;
+      padding: 20px;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    label, input, button {
+      margin: 5px;
+      padding: 8px;
+      font-size: 1em;
+    }
+
+    input {
+      width: 180px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+
+    th {
+      background-color: #eee;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 600px) {
+      input, button {
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>Historial de Consultas</h2>
+
+  <div class="section">
+    <label>Usuario:</label>
+    <input type="text" id="filtroUsuario" placeholder="usuario opcional" />
+    <label>Desde:</label>
+    <input type="date" id="filtroDesde" />
+    <label>Hasta:</label>
+    <input type="date" id="filtroHasta" />
+    <button onclick="consultarHistorial()">Consultar</button>
+    <button onclick="location.href='/menu'">← Volver al Menú</button>
+  </div>
+
+  <div class="section" id="resumen">
+    <h3>Volumen de Interacciones</h3>
+    <p id="conteo"></p>
+  </div>
+
+  <div class="section">
+    <h3>Chat desde Web</h3>
+    <table id="tablaChat">
+      <thead><tr><th>Usuario</th><th>Pregunta</th><th>Respuesta</th><th>Fecha</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h3>Mensajes por Telegram</h3>
+    <table id="tablaTelegram">
+      <thead><tr><th>Usuario</th><th>Fuente</th><th>Mensaje</th><th>Fecha</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h3>Ejecuciones del Agente de Voz</h3>
+    <table id="tablaVoz">
+      <thead><tr><th>Usuario</th><th>Fecha de Inicio</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function consultarHistorial() {
+      const usuario = document.getElementById("filtroUsuario").value;
+      const desde = document.getElementById("filtroDesde").value;
+      const hasta = document.getElementById("filtroHasta").value;
+
+      const params = new URLSearchParams();
+      if (usuario) params.append("usuario", usuario);
+      if (desde) params.append("desde", desde);
+      if (hasta) params.append("hasta", hasta);
+
+      const [volumen, chat, telegram, voz] = await Promise.all([
+        fetch("/api/historial/volumen").then(r => r.json()),
+        fetch(`/api/historial/chat-log?${params}`).then(r => r.json()),
+        fetch(`/api/historial/conversacion-agente?${params}`).then(r => r.json()),
+        fetch(`/api/historial/conversation-log?${params}`).then(r => r.json())
+      ]);
+
+      document.getElementById("conteo").innerText = `Chat: ${volumen.chat}, Telegram: ${volumen.telegram}, Voz: ${volumen.voz}`;
+
+      llenarTabla("tablaChat", chat.map(c => [c.usuario, c.pregunta, c.respuesta, c.creado_en]));
+      llenarTabla("tablaTelegram", telegram.map(t => [t.usuario, t.fuente, t.texto, t.created_at]));
+      llenarTabla("tablaVoz", voz.map(v => [v.username, v.started_at]));
+    }
+
+    function llenarTabla(id, rows) {
+      const tbody = document.querySelector(`#${id} tbody`);
+      tbody.innerHTML = "";
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+        row.forEach(cell => {
+          const td = document.createElement("td");
+          td.innerText = cell;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    consultarHistorial(); // carga inicial
+  </script>
+</body>
+</html>

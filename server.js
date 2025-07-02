@@ -193,8 +193,6 @@ app.get("/api/chat-log", async (req, res) => {
   res.json(data.reverse()); // Para mostrarlo en orden cronológico
 });
 
-
-
 // API: Actualizar Telegram y Contraseña
 app.put("/api/users/:id", async (req, res) => {
   const { id } = req.params;
@@ -214,6 +212,111 @@ app.put("/api/users/:id", async (req, res) => {
   res.json({ message: "Usuario actualizado" });
 });
 
-
-
 app.listen(port, () => console.log(`Servidor corriendo en http://localhost:${port}`));
+
+// ==========================
+// HISTORIAL DE CONSULTAS
+// ==========================
+
+// 1. Volumen total por canal
+app.get("/api/historial/volumen", async (req, res) => {
+  try {
+    const [chat, telegram, voz] = await Promise.all([
+      supabase
+        .from("chat_logs")
+        .select("creado_en", { count: "exact", head: false }),
+
+      supabase
+        .from("conversacion_agente")
+        .select("created_at", { count: "exact", head: false }),
+
+      supabase
+        .from("conversation_logs")
+        .select("started_at", { count: "exact", head: false }),
+    ]);
+
+    res.json({
+      chat: chat.count || 0,
+      telegram: telegram.count || 0,
+      voz: voz.count || 0
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Error consultando volumen" });
+  }
+});
+
+// 2. Chat desde web
+app.get("/api/historial/chat-log", async (req, res) => {
+  const { usuario, desde, hasta } = req.query;
+
+  const query = supabase
+    .from("chat_logs")
+    .select("*")
+    .order("creado_en", { ascending: true });
+
+  if (usuario) query.eq("usuario", usuario);
+  if (desde) query.gte("creado_en", desde);
+  if (hasta) query.lte("creado_en", hasta);
+
+  const { data, error } = await query;
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// 3. Conversación por Telegram (n8n)
+app.get("/api/historial/conversacion-agente", async (req, res) => {
+  const { usuario, desde, hasta } = req.query;
+
+  const query = supabase
+    .from("conversacion_agente")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (usuario) query.eq("usuario", usuario);
+  if (desde) query.gte("created_at", desde);
+  if (hasta) query.lte("created_at", hasta);
+
+  const { data, error } = await query;
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  const parsed = data.map(row => {
+    let texto = row.mensaje;
+
+    if (row.fuente === "Agente") {
+      try {
+        const json = JSON.parse(row.mensaje);
+        texto = json.output || row.mensaje;
+      } catch {
+        // dejar el texto original si no es JSON
+      }
+    }
+
+    return {
+      ...row,
+      texto
+    };
+  });
+
+  res.json(parsed);
+});
+
+// 4. Agente de voz ejecutado
+app.get("/api/historial/conversation-log", async (req, res) => {
+  const { usuario, desde, hasta } = req.query;
+
+  const query = supabase
+    .from("conversation_logs")
+    .select("*")
+    .order("started_at", { ascending: true });
+
+  if (usuario) query.eq("username", usuario);
+  if (desde) query.gte("started_at", desde);
+  if (hasta) query.lte("started_at", hasta);
+
+  const { data, error } = await query;
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
