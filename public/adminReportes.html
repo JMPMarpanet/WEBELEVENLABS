@@ -66,10 +66,12 @@
 
   <script>
     // Redirigir si el usuario no es admin
-    const usuario = localStorage.getItem('usuario');
-    const isAdmin = localStorage.getItem('isAdmin');
-    if (!usuario || isAdmin !== 'true') {
-      window.location.href = '/menu';
+    if (localStorage.getItem("loggedIn") !== "true") {
+      alert("Debes iniciar sesión.");
+      window.location.href = "/";
+    } else if (localStorage.getItem("isAdmin") !== "true") {
+      alert("Solo los administradores pueden acceder a esta página.");
+      window.location.href = "/menu";
     }
 
     async function cargarUsuarios() {
