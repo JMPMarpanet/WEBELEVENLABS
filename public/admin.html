@@ -1,173 +1,250 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel de Administración</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background-color: #f7f7f7;
-      padding: 40px;
-      max-width: 700px;
-      margin: auto;
-    }
-    h2, h3 { color: #333; text-align: center; }
-    form, table { margin-top: 30px; width: 100%; }
-    input, select { padding: 8px; margin-bottom: 10px; width: calc(100% - 20px); }
-    button { padding: 10px 20px; margin-top: 10px; background-color: #0066ff; color: white; border: none; border-radius: 6px; cursor: pointer; }
-    .danger { background-color: #d11a2a; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { padding: 10px; border: 1px solid #ccc; }
-    th { background-color: #eee; }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 20px;
-      }
-
-      input, select, button {
-        width: 100% !important;
-        box-sizing: border-box;
-        font-size: 1em;
-      }
-
-      form div {
-        flex-direction: column;
-      }
-
-      table {
-        font-size: 0.9em;
-      }
-
-      th, td {
-        word-break: break-word;
-      }
-    }
-
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Reportes</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <h2>Administración de Usuarios</h2>
-
-  <form id="userForm">
-    <input type="text" id="username" placeholder="Nombre de usuario" required />
-    <input type="password" id="password" placeholder="Contraseña" required />
-    <input type="text" id="telegram" placeholder="Telegram" />
-    <select id="isAdmin">
-      <option value="false">Usuario</option>
-      <option value="true">Administrador</option>
-    </select>
-    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-      <button type="submit">Agregar Usuario</button>
-      <button type="button" id="goMenu">Ir al Menú</button>
-      <button type="button" id="goHistorial">Ver Historial de Consultas</button>
-      <button type="button" id="goReportes">Administrar Reportes Power BI</button>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="mb-4">
+      <a href="/admin" class="inline-block bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded">← Volver a Admin</a>
     </div>
-  </form>
+    <h1 class="text-2xl font-bold mb-4">Administración de Reportes Power BI</h1>
 
-  <h3>Usuarios existentes</h3>
-  <table id="userTable">
-    <thead>
-      <tr><th>Usuario</th><th>Admin</th><th>Telegram</th><th>Acción</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    $1
 
-  <script type="module">
+      <!-- Formulario agregar reporte -->
+      <div id="formulario-reporte" class="mt-4 hidden">
+        <h3 class="text-lg font-semibold mb-2">Agregar nuevo reporte</h3>
+        <form onsubmit="guardarNuevoReporte(event)" class="grid grid-cols-1 gap-4">
+          <input type="text" id="nuevo_nombre" placeholder="Nombre del reporte" required class="p-2 border rounded">
+          <input type="text" id="nuevo_report_id" placeholder="Report ID" required class="p-2 border rounded">
+          <input type="text" id="nuevo_group_id" placeholder="Group ID" required class="p-2 border rounded">
+          <input type="text" id="nuevo_grupo" placeholder="Grupo (opcional)" class="p-2 border rounded">
+          <label class="inline-flex items-center">
+            <input type="checkbox" id="nuevo_activo" class="mr-2"> Activo
+          </label>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Guardar Reporte</button>
+        </form>
+      </div>
+    </div>
 
-    if (localStorage.getItem("loggedIn") !== "true") {
-      alert("Debes iniciar sesión.");
-      window.location.href = "/";
-    } else if (localStorage.getItem("isAdmin") !== "true") {
-      alert("Solo los administradores pueden acceder a esta página.");
-      window.location.href = "/menu";
+    <!-- Panel de Asignaciones -->
+    <div class="bg-white rounded shadow p-4">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Asignaciones a Usuarios</h2>
+        <button onclick="mostrarFormularioAsignacion()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">+ Asignar Reporte</button>
+      </div>
+      <table class="min-w-full table-auto">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="px-4 py-2">Usuario</th>
+            <th class="px-4 py-2">Nombre del Reporte</th>
+            <th class="px-4 py-2">Grupo</th>
+            <th class="px-4 py-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-asignaciones"></tbody>
+      </table>
+
+      <!-- Formulario asignar reporte -->
+      <div id="formulario-asignacion" class="mt-4 hidden">
+        <h3 class="text-lg font-semibold mb-2">Asignar Reporte a Usuario</h3>
+        <form onsubmit="guardarAsignacion(event)" class="grid grid-cols-1 gap-4">
+          <select required id="usuario_asignar" class="p-2 border rounded"></select>
+          <select required id="reporte_asignar" class="p-2 border rounded"></select>
+          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Asignar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Redirigir si el usuario no es admin
+    const usuario = localStorage.getItem('usuario');
+    const isAdmin = localStorage.getItem('isAdmin');
+    if (!usuario || isAdmin !== 'true') {
+      window.location.href = '/menu';
     }
-
-    const tableBody = document.querySelector("#userTable tbody");
-    const form = document.getElementById("userForm");
-    
-    const goMenuBtn = document.getElementById("goMenu");
-    const goHistorialBtn = document.getElementById("goHistorial");
-    const goReportesBtn = document.getElementById("goReportes");
-
-    goMenuBtn.addEventListener("click", () => {
-      window.location.href = "/menu";
-    });
-
-    goHistorialBtn.addEventListener("click", () => {
-      window.location.href = "/historial"; // luego creamos esta página
-    });
-
-    goReportesBtn.addEventListener("click", () => {
-      window.location.href = "/adminReportes.html";
-    });
-
     async function cargarUsuarios() {
-      const res = await fetch("/api/users");
-      const users = await res.json();
-      tableBody.innerHTML = "";
-      users.forEach(u => {
-        const tr = document.createElement("tr");
-
-        tr.innerHTML = `
-          <td>${u.username}</td>
-          <td>${u.is_admin ? "✅" : "❌"}</td>
-          <td>${u.telegram || ""}</td>
-          <td>
-            <button class="edit" data-id="${u.id}">Editar</button>
-            <button class="danger delete" data-id="${u.id}" data-username="${u.username}">Eliminar</button>
-          </td>
-        `;
-        tableBody.appendChild(tr);
-      });
-
-      document.querySelectorAll(".delete").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          if (confirm(`¿Eliminar al usuario ${btn.dataset.username}?`)) {
-            await fetch(`/api/users/${btn.dataset.id}`, { method: "DELETE" });
-            cargarUsuarios();
-          }
-        });
-      });
-
-      document.querySelectorAll(".edit").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = btn.dataset.id;
-          const telegram = prompt("Nuevo valor de Telegram (dejar vacío para no cambiar)");
-          const newPassword = prompt("Nueva contraseña (dejar vacío para no cambiar)");
-          const body = {};
-          if (telegram !== null) body.telegram = telegram;
-          if (newPassword) body.newPassword = newPassword;
-
-          await fetch(`/api/users/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-          });
-          cargarUsuarios();
-        });
+      const res = await fetch('/api/users');
+      const usuarios = await res.json();
+      const select = document.getElementById('usuario_asignar');
+      select.innerHTML = '';
+      usuarios.forEach(u => {
+        const option = document.createElement('option');
+        option.value = u.username;
+        option.textContent = u.username;
+        select.appendChild(option);
       });
     }
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
-      const telegram = document.getElementById("telegram").value;
-      const isAdmin = document.getElementById("isAdmin").value === "true";
-
-      await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, is_admin: isAdmin, telegram }),
+    async function cargarReportesParaAsignacion() {
+      const res = await fetch('/api/reportes');
+      const reportes = await res.json();
+      const select = document.getElementById('reporte_asignar');
+      select.innerHTML = '';
+      reportes.filter(r => r.activo).forEach(r => {
+        const option = document.createElement('option');
+        option.value = r.id;
+        option.textContent = `${r.nombre} (ID: ${r.id})`;
+        select.appendChild(option);
       });
+    }
 
-      form.reset();
+    async function guardarAsignacion(event) {
+      event.preventDefault();
+      const usuario = document.getElementById('usuario_asignar').value;
+      const id_reporte = parseInt(document.getElementById('reporte_asignar').value);
+
+      const resCheck = await fetch('/api/asignaciones');
+      const asignaciones = await resCheck.json();
+      const yaExiste = asignaciones.some(a => a.usuario === usuario && a.id_reporte === id_reporte);
+      if (yaExiste) {
+        alert("Este usuario ya tiene asignado este reporte.");
+        return;
+      }
+
+      const payload = { usuario, id_reporte };
+      const res = await fetch('/api/asignaciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        cargarAsignaciones();
+        document.getElementById('formulario-asignacion').classList.add('hidden');
+        event.target.reset();
+        delete document.getElementById('formulario-reporte').dataset.editingId;
+      } else {
+        alert("Error al asignar reporte");
+      }
+    }
+
+    async function cargarAsignaciones() {
+      const res = await fetch('/api/asignaciones');
+      const data = await res.json();
+      const tabla = document.getElementById('tabla-asignaciones');
+      tabla.innerHTML = '';
+      data.forEach(a => {
+        const fila = document.createElement('tr');
+        fila.className = 'border-t';
+        fila.innerHTML = `
+          <td class="px-4 py-2">${a.usuario}</td>
+          <td class="px-4 py-2">${a.reportes_powerbi?.nombre || '—'}</td>
+          <td class="px-4 py-2">${a.reportes_powerbi?.grupo || ''}</td>
+          <td class="px-4 py-2">
+            <button onclick="eliminarAsignacion(${a.id})" class="text-red-600">Eliminar</button>
+          </td>`;
+        tabla.appendChild(fila);
+      });
+    }
+
+    async function eliminarAsignacion(id) {
+      if (!confirm("¿Eliminar esta asignación?")) return;
+      const res = await fetch(`/api/asignaciones/${id}`, { method: 'DELETE' });
+      if (res.ok) cargarAsignaciones();
+      else alert("No se pudo eliminar asignación");
+    }
+
+    async function eliminarReporte(id) {
+      try {
+        const asignacionesRes = await fetch('/api/asignaciones');
+        const asignaciones = await asignacionesRes.json();
+        const asignado = asignaciones.some(a => a.id_reporte === id);
+        if (asignado) {
+          alert("No puedes eliminar este reporte porque está asignado a uno o más usuarios.");
+          return;
+        }
+
+        if (!confirm("¿Eliminar este reporte?")) return;
+        const res = await fetch(`/api/reportes/${id}`, { method: 'DELETE' });
+        if (res.ok) cargarReportes();
+        else alert("No se pudo eliminar el reporte");
+      } catch (err) {
+        console.error("Error verificando asignaciones:", err);
+        alert("Error al verificar si el reporte está asignado");
+      }
+    }
+
+    async function cargarReportes() {
+      const res = await fetch('/api/reportes');
+      const reportes = await res.json();
+      const tabla = document.getElementById('tabla-reportes');
+      tabla.innerHTML = '';
+      reportes.forEach(r => {
+        const fila = document.createElement('tr');
+        fila.className = 'border-t';
+        fila.innerHTML = `
+          <td class="px-4 py-2">${r.id}</td>
+          <td class="px-4 py-2">${r.nombre}</td>
+          <td class="px-4 py-2">${r.report_id}</td>
+          <td class="px-4 py-2">${r.group_id}</td>
+          <td class="px-4 py-2">${r.grupo || ''}</td>
+          $1
+          <td class="px-4 py-2">
+            <button onclick="editarReporte(${r.id})" class="text-blue-600 mr-2">Editar</button>
+            <button onclick="eliminarReporte(${r.id})" class="text-red-600">Eliminar</button>
+          </td>`;
+        tabla.appendChild(fila);
+      });
+    }
+
+    function mostrarFormularioAsignacion() {
+      document.getElementById('formulario-asignacion').classList.toggle('hidden');
       cargarUsuarios();
-    });
+      cargarReportesParaAsignacion();
+    }
 
-    cargarUsuarios();
+    async function guardarNuevoReporte(event) {
+      event.preventDefault();
+      const payload = {
+        nombre: document.getElementById('nuevo_nombre').value,
+        report_id: document.getElementById('nuevo_report_id').value,
+        group_id: document.getElementById('nuevo_group_id').value,
+        grupo: document.getElementById('nuevo_grupo').value,
+        activo: document.getElementById('nuevo_activo').checked
+      };
+      const id = document.getElementById('formulario-reporte').dataset.editingId;
+      const url = id ? `/api/reportes/${id}` : '/api/reportes';
+      const method = id ? 'PUT' : 'POST';
+      const res = await fetch(url, { method,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        cargarReportes();
+        document.getElementById('formulario-reporte').classList.add('hidden');
+        event.target.reset();
+      } else {
+        alert('Error al guardar el reporte');
+      }
+    }
+
+    function editarReporte(id) {
+      const fila = document.querySelector(`#tabla-reportes tr td:first-child:contains('${id}')`).parentElement;
+      const nombre = fila.children[1].textContent;
+      const reportId = fila.children[2].textContent;
+      const groupId = fila.children[3].textContent;
+      const grupo = fila.children[4].textContent;
+      const activo = fila.children[5].textContent === '✅';
+
+      document.getElementById('nuevo_nombre').value = nombre;
+      document.getElementById('nuevo_report_id').value = reportId;
+      document.getElementById('nuevo_group_id').value = groupId;
+      document.getElementById('nuevo_grupo').value = grupo;
+      document.getElementById('nuevo_activo').checked = activo;
+      document.getElementById('formulario-reporte').classList.remove('hidden');
+      document.getElementById('formulario-reporte').dataset.editingId = id;
+    }
+
+    window.onload = () => {
+      cargarReportes();
+      cargarAsignaciones();
+    }
   </script>
 </body>
 </html>
