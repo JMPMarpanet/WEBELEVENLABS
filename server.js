@@ -81,6 +81,11 @@ app.get("/menu", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "menu.html"));
 });
 
+app.get("/historial", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "historial.html"));
+});
+
+
 
 // API: Obtener todos los usuarios (sin contraseña)
 app.get("/api/users", async (req, res) => {
