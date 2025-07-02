@@ -67,7 +67,7 @@
   <script>
     // Redirigir si el usuario no es admin
     const usuario = localStorage.getItem('usuario');
-    const isAdmin = localStorage.getItem('isadmin');
+    const isAdmin = localStorage.getItem('isAdmin');
     if (!usuario || isAdmin !== 'true') {
       window.location.href = '/menu';
     }
